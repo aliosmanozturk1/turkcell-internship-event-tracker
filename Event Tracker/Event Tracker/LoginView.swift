@@ -8,17 +8,15 @@
 import SwiftUI
 
 struct LoginView: View {
-    
     @State private var email: String = ""
     @State private var password: String = ""
     
     var body: some View {
-        
         ZStack {
             Color(hex: "F2F1EC")
                 .edgesIgnoringSafeArea(.all)
             
-            VStack (spacing: 10) {
+            VStack(spacing: 10) {
                 Text("Welcome")
                     .font(.largeTitle)
                 
@@ -38,13 +36,12 @@ struct LoginView: View {
                     // TODO: Login Button Action
                 } label: {
                     Text("Login")
-                            .padding()
-                            .bold()
-                    .frame(maxWidth: .infinity)
-                    .background(Color(hex: "283C5F"))
-                    .foregroundStyle(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    
+                        .padding()
+                        .bold()
+                        .frame(maxWidth: .infinity)
+                        .background(Color(hex: "283C5F"))
+                        .foregroundStyle(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 
                 HStack {
@@ -60,7 +57,7 @@ struct LoginView: View {
                 Button {
                     // TODO: Continue With Apple
                 } label: {
-                    HStack (alignment: .center) {
+                    HStack(alignment: .center) {
                         Image(systemName: "apple.logo")
                         Text("Continue with Apple")
                             .bold()
@@ -75,7 +72,7 @@ struct LoginView: View {
                 Button {
                     // TODO: Continue With Google
                 } label: {
-                    HStack (alignment: .center) {
+                    HStack(alignment: .center) {
                         Image("google")
                             .resizable()
                             .frame(width: 18, height: 18)
@@ -88,7 +85,6 @@ struct LoginView: View {
                     .foregroundStyle(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
-                
                 
                 Button {
                     // TODO: Continue as Guest
@@ -103,13 +99,9 @@ struct LoginView: View {
                 }
                 
                 Spacer()
-                
-                
-                
             }
             .padding()
         }
-        
     }
 }
 
