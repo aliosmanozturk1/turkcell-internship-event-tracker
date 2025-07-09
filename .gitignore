@@ -1,0 +1,11 @@
+# Xcode user-specific files
+*.xcuserstate
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcschemes
+
+# macOS
+.DS_Store
