@@ -10,6 +10,7 @@ import SwiftUI
 struct RegisterView: View {
     @State private var email: String = ""
     @State private var password: String = ""
+    @State private var repeatPassword: String = ""
     
     var body: some View {
         ZStack {
@@ -32,7 +33,7 @@ struct RegisterView: View {
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 
-                SecureField("Re-Enter Password", text: $password)
+                SecureField("Re-Enter Password", text: $repeatPassword)
                     .padding()
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
