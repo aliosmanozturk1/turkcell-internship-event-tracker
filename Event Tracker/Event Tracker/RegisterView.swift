@@ -69,6 +69,9 @@ struct RegisterView: View {
         }
         .navigationTitle("Register")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(isPresented: $viewModel.isRegistered) {
+            MainView(userEmail: viewModel.email)
+        }
     }
 }
 
