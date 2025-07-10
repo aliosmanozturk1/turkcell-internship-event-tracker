@@ -7,6 +7,7 @@
 
 import FirebaseCore
 import SwiftUI
+import FirebaseAuth
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
@@ -23,7 +24,11 @@ struct Event_TrackerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            LoginView()
+            if AuthService.shared.isUserSignedIn {
+                MainView(userEmail: AuthService.shared.currentUser?.email ?? "")
+            } else {
+                LoginView()
+            }
         }
     }
 }
