@@ -8,9 +8,7 @@
 import SwiftUI
 
 struct RegisterView: View {
-    @State private var email: String = ""
-    @State private var password: String = ""
-    @State private var repeatPassword: String = ""
+    @StateObject private var viewModel = RegisterViewModel()
     
     var body: some View {
         ZStack {
@@ -23,23 +21,37 @@ struct RegisterView: View {
                 
                 Spacer()
                 
-                TextField("E-Mail", text: $email)
+                TextField("E-Mail", text: $viewModel.email)
                     .padding()
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 
-                SecureField("Password", text: $password)
+                SecureField("Password", text: $viewModel.password)
                     .padding()
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 
-                SecureField("Re-Enter Password", text: $repeatPassword)
+                SecureField("Confirm Password", text: $viewModel.confirmPassword)
                     .padding()
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
+                
+                if let error = viewModel.errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 5)
+                }
+                                
+                if viewModel.isLoading {
+                    ProgressView()
+                        .padding(.top, 5)
+                }
                 
                 Button {
-                    // TODO: Login Button Action
+                    Task {
+                        await viewModel.register()
+                    }
                 } label: {
                     Text("Register")
                         .padding()
@@ -49,6 +61,7 @@ struct RegisterView: View {
                         .foregroundStyle(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
+                .disabled(viewModel.isLoading)
                 
                 Spacer()
             }
