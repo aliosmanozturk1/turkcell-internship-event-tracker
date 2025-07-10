@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @State private var email: String = ""
-    @State private var password: String = ""
+    @StateObject private var viewModel = LoginViewModel()
     
     var body: some View {
         NavigationStack {
@@ -23,18 +22,32 @@ struct LoginView: View {
                     
                     Spacer()
                     
-                    TextField("E-Mail", text: $email)
+                    TextField("E-Mail", text: $viewModel.email)
                         .padding()
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     
-                    SecureField("Password", text: $password)
+                    SecureField("Password", text: $viewModel.password)
                         .padding()
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                    
+                    if let error = viewModel.errorMessage {
+                        Text(error)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 5)
+                    }
+                                    
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .padding(.top, 5)
+                    }
                     
                     Button {
-                        // TODO: Login Button Action
+                        Task {
+                            await viewModel.login()
+                        }
                     } label: {
                         Text("Login")
                             .padding()
@@ -106,6 +119,9 @@ struct LoginView: View {
             .navigationTitle("Login")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(isPresented: $viewModel.isLogin) {
+                MainView(userEmail: viewModel.email)
+            }
         }
     }
 }
