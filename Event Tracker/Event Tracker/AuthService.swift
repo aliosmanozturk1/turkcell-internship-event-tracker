@@ -13,41 +13,61 @@ final class AuthService {
     private let auth = FirebaseManager.shared.auth
     
     private init() {}
-    
+
+    // MARK: - Current User
+        
     var currentUser: User? {
-        return auth.currentUser
+        auth.currentUser
+    }
+        
+    var isUserSignedIn: Bool {
+        currentUser != nil
+    }
+        
+    // MARK: - Authentication Methods
+        
+    func signUp(email: String, password: String) async throws -> User {
+        let authDataResult = try await auth.createUser(withEmail: email, password: password)
+        return authDataResult.user
+    }
+        
+    func signIn(email: String, password: String) async throws -> User {
+        let authDataResult = try await auth.signIn(withEmail: email, password: password)
+        return authDataResult.user
+    }
+        
+    func signOut() throws {
+        try auth.signOut()
+    }
+        
+    func resetPassword(email: String) async throws {
+        try await auth.sendPasswordReset(withEmail: email)
+    }
+        
+    func deleteAccount() async throws {
+        guard let user = currentUser else {
+            throw AuthError.userNotFound
+        }
+        try await user.delete()
     }
     
-    func signIn(email: String, password: String, completion: @escaping (Result<AuthDataResult, Error>) -> Void) {
-        auth.signIn(withEmail: email, password: password) { result, error in
-            if let error = error {
-                completion(.failure(error))
-            } else if let result = result {
-                completion(.success(result))
+    enum AuthError: LocalizedError {
+        case userNotFound
+        case invalidCredentials
+        case networkError
+        case unknown
+        
+        var errorDescription: String? {
+            switch self {
+            case .userNotFound:
+                return "Kullanıcı bulunamadı"
+            case .invalidCredentials:
+                return "Geçersiz kullanıcı bilgileri"
+            case .networkError:
+                return "İnternet bağlantısını kontrol edin"
+            case .unknown:
+                return "Bilinmeyen bir hata oluştu"
             }
         }
-    }
-    
-    func signUp(email: String, password: String, completion: @escaping (Result<AuthDataResult, Error>) -> Void) {
-        auth.createUser(withEmail: email, password: password) { result, error in
-            if let error = error {
-                completion(.failure(error))
-            } else if let result = result {
-                completion(.success(result))
-            }
-        }
-    }
-    
-    func signOut() -> Result<Void, Error> {
-        do {
-            try auth.signOut()
-            return .success(())
-        } catch {
-            return .failure(error)
-        }
-    }
-    
-    func sendPasswordReset(email: String, completion: @escaping (Error?) -> Void) {
-        auth.sendPasswordReset(withEmail: email, completion: completion)
     }
 }
