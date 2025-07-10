@@ -21,7 +21,7 @@ class RegisterViewModel: ObservableObject {
     @Published var isRegistered: Bool = false
     
     func register() async {
-        // Input validation (isteğe bağlı)
+        // Input validation
         guard !email.isEmpty else {
             errorMessage = "Email cannot be empty."
             return
