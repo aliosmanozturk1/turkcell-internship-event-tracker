@@ -21,8 +21,6 @@ final class FirebaseManager {
     let storage : Storage
     
     private init() {
-        FirebaseApp.configure()
-        
         self.auth = Auth.auth()
         self.firestore = Firestore.firestore()
         self.database = Database.database()
