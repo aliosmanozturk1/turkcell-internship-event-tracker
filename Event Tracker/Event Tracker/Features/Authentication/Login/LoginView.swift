@@ -84,7 +84,9 @@ struct LoginView: View {
                     }
                     
                     Button {
-                        // TODO: Continue With Google
+                        Task {
+                            await viewModel.loginWithGoogle()
+                        }
                     } label: {
                         HStack(alignment: .center) {
                             Image("google")
@@ -99,6 +101,7 @@ struct LoginView: View {
                         .foregroundStyle(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
+                    .disabled(viewModel.isLoading)
                     
                     Button {
                         // TODO: Continue as Guest
