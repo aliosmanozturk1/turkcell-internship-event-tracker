@@ -69,7 +69,9 @@ struct LoginView: View {
                     Spacer()
                     
                     Button {
-                        // TODO: Continue With Apple
+                        Task {
+                            await viewModel.loginWithApple()
+                        }
                     } label: {
                         HStack(alignment: .center) {
                             Image(systemName: "apple.logo")
@@ -82,6 +84,7 @@ struct LoginView: View {
                         .foregroundStyle(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
+                    .disabled(viewModel.isLoading)
                     
                     Button {
                         Task {

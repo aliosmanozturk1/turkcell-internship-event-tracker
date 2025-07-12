@@ -70,6 +70,27 @@ class LoginViewModel: ObservableObject {
         
         isLoading = false
     }
+    
+    func loginWithApple() async {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let user = try await AuthService.shared.signInWithApple()
+            // Apple'dan gelen kullanıcı email'ini kullan
+            email = user.email ?? ""
+            isLogin = true
+        } catch {
+            isLogin = false
+            if let error = error as? AuthService.AuthError {
+                errorMessage = error.localizedDescription
+            } else {
+                errorMessage = error.localizedDescription
+            }
+        }
+        
+        isLoading = false
+    }
         
     func clear() {
         email = ""
