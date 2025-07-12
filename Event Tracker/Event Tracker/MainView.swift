@@ -10,6 +10,8 @@ import SwiftUI
 
 struct MainView: View {
     let userEmail: String
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var viewModel = MainViewModel()
     
     var body: some View {
         ZStack {
@@ -45,12 +47,22 @@ struct MainView: View {
             }
             .padding()
         }
-        .navigationTitle("Ana Sayfa")
+        .navigationTitle("Main Page")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Sign Out") {
+                    viewModel.signOut()
+                    dismiss()
+                }
+                .disabled(viewModel.isSigningOut)
+            }
+        }
     }
 }
 
 #Preview {
     MainView(userEmail: "test@example.com")
 }
+
