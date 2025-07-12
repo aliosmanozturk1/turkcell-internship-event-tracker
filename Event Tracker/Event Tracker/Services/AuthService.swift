@@ -116,6 +116,5 @@ final class AuthService {
                 return "An unknown error occurred"
             }
         }
-        }
     }
 }
