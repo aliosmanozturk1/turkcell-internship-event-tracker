@@ -8,12 +8,28 @@
 import FirebaseCore
 import SwiftUI
 import FirebaseAuth
+import GoogleSignIn
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        // Configure Firebase
         FirebaseApp.configure()
+        
+        // Configure Google Sign-in
+        guard let clientID = FirebaseApp.app()?.options.clientID else {
+            fatalError("Firebase clientID bulunamadı")
+        }
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        
         return true
+    }
+    
+    // Google Sign-In URL handling
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+      return GIDSignIn.sharedInstance.handle(url)
     }
 }
 
