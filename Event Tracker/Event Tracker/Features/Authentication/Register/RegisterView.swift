@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RegisterView: View {
     @StateObject private var viewModel = RegisterViewModel()
+    @EnvironmentObject var router: Router
     
     var body: some View {
         ZStack {
@@ -51,6 +52,9 @@ struct RegisterView: View {
                 Button {
                     Task {
                         await viewModel.register()
+                        if viewModel.isRegistered {
+                            router.popToRoot()
+                        }
                     }
                 } label: {
                     Text("Register")
@@ -69,12 +73,10 @@ struct RegisterView: View {
         }
         .navigationTitle("Register")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(isPresented: $viewModel.isRegistered) {
-            MainView(userEmail: viewModel.email)
-        }
+        // RootView will switch views after successful registration
     }
 }
 
 #Preview {
-    RegisterView()
+    RegisterView().environmentObject(Router())
 }
