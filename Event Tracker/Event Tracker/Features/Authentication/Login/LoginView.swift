@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AuthenticationServices
 
 struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
@@ -68,20 +69,17 @@ struct LoginView: View {
                 
                 Spacer()
                 
-                Button {
-                    // TODO: Continue With Apple
-                } label: {
-                    HStack(alignment: .center) {
-                        Image(systemName: "apple.logo")
-                        Text("Continue with Apple")
-                            .bold()
+                SignInWithAppleButton(.signIn) { request in
+                    viewModel.prepareAppleRequest(request)
+                } onCompletion: { result in
+                    Task {
+                        await viewModel.loginWithApple(result: result)
                     }
-                    .padding(.vertical)
-                    .frame(maxWidth: .infinity)
-                    .background(Color(hex: "000000"))
-                    .foregroundStyle(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
+                .signInWithAppleButtonStyle(.black)
+                .frame(maxWidth: .infinity)
+                .frame(height: 45)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
                 
                 Button {
                     Task {

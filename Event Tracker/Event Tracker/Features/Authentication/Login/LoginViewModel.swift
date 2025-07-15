@@ -8,6 +8,7 @@
 import Combine
 import Foundation
 import FirebaseAuth
+import AuthenticationServices
 
 @MainActor
 class LoginViewModel: ObservableObject {
@@ -19,6 +20,8 @@ class LoginViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var isLogin: Bool = false
+
+    private var currentNonce: String?
     
     func login() async {
         // Input validation
@@ -68,6 +71,39 @@ class LoginViewModel: ObservableObject {
             }
         }
         
+        isLoading = false
+    }
+
+    func prepareAppleRequest(_ request: ASAuthorizationAppleIDRequest) {
+        let nonce = randomNonceString()
+        currentNonce = nonce
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = sha256(nonce)
+    }
+
+    func loginWithApple(result: Result<ASAuthorization, Error>) async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            guard case let .success(authorization) = result,
+                  let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
+                  let nonce = currentNonce else {
+                throw AuthService.AuthError.unknown
+            }
+
+            let user = try await AuthService.shared.signInWithApple(credential: appleIDCredential, nonce: nonce)
+            email = user.email ?? email
+            isLogin = true
+        } catch {
+            isLogin = false
+            if let error = error as? AuthService.AuthError {
+                errorMessage = error.localizedDescription
+            } else {
+                errorMessage = error.localizedDescription
+            }
+        }
+
         isLoading = false
     }
         

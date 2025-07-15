@@ -9,6 +9,8 @@ import FirebaseAuth
 import Foundation
 import GoogleSignIn
 import FirebaseCore
+import AuthenticationServices
+import CryptoKit
 
 final class AuthService {
     static let shared = AuthService()
@@ -70,6 +72,21 @@ final class AuthService {
         
         // Firebase'e giriş yap
         let authResult = try await auth.signIn(with: credential)
+        return authResult.user
+    }
+
+    // MARK: - Apple Sign-In
+
+    func signInWithApple(credential: ASAuthorizationAppleIDCredential, nonce: String) async throws -> User {
+        guard let tokenData = credential.identityToken,
+              let idTokenString = String(data: tokenData, encoding: .utf8) else {
+            throw AuthError.tokenError
+        }
+
+        let firebaseCredential = OAuthProvider.credential(withProviderID: "apple.com",
+                                                          idToken: idTokenString,
+                                                          rawNonce: nonce)
+        let authResult = try await auth.signIn(with: firebaseCredential)
         return authResult.user
     }
         
