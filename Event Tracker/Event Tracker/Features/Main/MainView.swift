@@ -10,7 +10,7 @@ import SwiftUI
 
 struct MainView: View {
     let userEmail: String
-    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var sessionManager: SessionManager
     @StateObject private var viewModel = MainViewModel()
     
     var body: some View {
@@ -53,8 +53,7 @@ struct MainView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Sign Out") {
-                    viewModel.signOut()
-                    dismiss()
+                    sessionManager.signOut()
                 }
                 .disabled(viewModel.isSigningOut)
             }
@@ -64,5 +63,6 @@ struct MainView: View {
 
 #Preview {
     MainView(userEmail: "test@example.com")
+        .environmentObject(SessionManager())
 }
 

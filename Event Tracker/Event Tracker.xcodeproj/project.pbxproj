@@ -20,22 +20,9 @@
 		797F86D22E1E7EF8006F7D11 /* Event Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Event Tracker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		799B89A12E22C9C1008B697C /* Exceptions for "Event Tracker" folder in "Event Tracker" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Event-Tracker-Info.plist",
-			);
-			target = 797F86D12E1E7EF8006F7D11 /* Event Tracker */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		797F86D42E1E7EF8006F7D11 /* Event Tracker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				799B89A12E22C9C1008B697C /* Exceptions for "Event Tracker" folder in "Event Tracker" target */,
-			);
 			path = "Event Tracker";
 			sourceTree = "<group>";
 		};
