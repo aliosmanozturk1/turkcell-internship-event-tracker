@@ -8,6 +8,7 @@
 import Combine
 import Foundation
 import FirebaseAuth
+import AuthenticationServices
 
 @MainActor
 class LoginViewModel: ObservableObject {
@@ -66,6 +67,53 @@ class LoginViewModel: ObservableObject {
             } else {
                 errorMessage = error.localizedDescription
             }
+        }
+        
+        isLoading = false
+    }
+    
+    func loginWithApple(request: ASAuthorizationAppleIDRequest) {
+        let nonce = randomNonceString()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = sha256(nonce)
+        
+        // Store nonce for later use
+        UserDefaults.standard.set(nonce, forKey: "appleAuthNonce")
+    }
+    
+    func handleAppleSignInResult(_ result: Result<ASAuthorization, Error>) async {
+        isLoading = true
+        errorMessage = nil
+        
+        switch result {
+        case .success(let authorization):
+            guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
+                  let idToken = appleIDCredential.identityToken,
+                  let idTokenString = String(data: idToken, encoding: .utf8),
+                  let nonce = UserDefaults.standard.string(forKey: "appleAuthNonce") else {
+                isLogin = false
+                errorMessage = "Apple Sign-In failed"
+                isLoading = false
+                return
+            }
+            
+            do {
+                let user = try await AuthService.shared.signInWithApple(idToken: idTokenString, nonce: nonce)
+                email = user.email ?? ""
+                isLogin = true
+                UserDefaults.standard.removeObject(forKey: "appleAuthNonce")
+            } catch {
+                isLogin = false
+                if let error = error as? AuthService.AuthError {
+                    errorMessage = error.localizedDescription
+                } else {
+                    errorMessage = error.localizedDescription
+                }
+            }
+            
+        case .failure(let error):
+            isLogin = false
+            errorMessage = error.localizedDescription
         }
         
         isLoading = false
