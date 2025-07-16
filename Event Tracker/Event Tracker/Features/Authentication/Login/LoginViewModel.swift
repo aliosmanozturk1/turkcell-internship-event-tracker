@@ -21,6 +21,8 @@ class LoginViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isLogin: Bool = false
     
+    private var currentNonce: String?
+    
     func login() async {
         // Input validation
         guard !email.isEmpty else {
@@ -78,7 +80,7 @@ class LoginViewModel: ObservableObject {
         request.nonce = sha256(nonce)
         
         // Store nonce for later use
-        UserDefaults.standard.set(nonce, forKey: "appleAuthNonce")
+        currentNonce = nonce
     }
     
     func handleAppleSignInResult(_ result: Result<ASAuthorization, Error>) async {
@@ -90,7 +92,7 @@ class LoginViewModel: ObservableObject {
             guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
                   let idToken = appleIDCredential.identityToken,
                   let idTokenString = String(data: idToken, encoding: .utf8),
-                  let nonce = UserDefaults.standard.string(forKey: "appleAuthNonce") else {
+                  let nonce = currentNonce else {
                 isLogin = false
                 errorMessage = "Apple Sign-In failed"
                 isLoading = false
@@ -101,7 +103,7 @@ class LoginViewModel: ObservableObject {
                 let user = try await AuthService.shared.signInWithApple(idToken: idTokenString, nonce: nonce)
                 email = user.email ?? ""
                 isLogin = true
-                UserDefaults.standard.removeObject(forKey: "appleAuthNonce")
+                currentNonce = nil
             } catch {
                 isLogin = false
                 if let error = error as? AuthService.AuthError {
