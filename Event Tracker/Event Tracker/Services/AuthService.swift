@@ -9,10 +9,12 @@ import FirebaseAuth
 import Foundation
 import GoogleSignIn
 import FirebaseCore
+import AuthenticationServices
 
 final class AuthService {
     static let shared = AuthService()
     private let auth = FirebaseManager.shared.auth
+    private var currentNonce: String?
     
     private init() {}
 
@@ -38,8 +40,16 @@ final class AuthService {
         return authDataResult.user
     }
     
-    // MARK: - Google Sign-In
     
+    // MARK: - Apple Sign-In
+    
+    func signInWithApple(idToken: String, nonce: String) async throws -> User {
+        let credential = OAuthProvider.credential(providerID: AuthProviderID.apple, idToken: idToken, rawNonce: nonce)
+        let authResult = try await auth.signIn(with: credential)
+        return authResult.user
+    }
+    
+    // MARK: - Google Sign-In
     func signInWithGoogle() async throws -> User {
         // Google Sign-In konfigürasyonunu kontrol et
         guard let clientID = FirebaseApp.app()?.options.clientID else {
@@ -96,6 +106,7 @@ final class AuthService {
         case configurationError
         case noRootViewController
         case tokenError
+        case appleSignInFailed
         case unknown
         
         var errorDescription: String? {
@@ -112,6 +123,8 @@ final class AuthService {
                 return "Application view not found"
             case .tokenError:
                 return "Google authentication error"
+            case .appleSignInFailed:
+                return "Apple Sign-In failed"
             case .unknown:
                 return "An unknown error occurred"
             }
