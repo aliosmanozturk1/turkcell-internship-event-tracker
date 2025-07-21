@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CompleteProfileView: View {
     @StateObject private var viewModel = CompleteProfileViewModel()
+    @EnvironmentObject var sessionManager: SessionManager
     
     var body: some View {
         ZStack {
@@ -26,7 +27,23 @@ struct CompleteProfileView: View {
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 
-                Button {} label: {
+                if let error = viewModel.errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                }
+
+                if viewModel.isSaving {
+                    ProgressView()
+                }
+
+                Button {
+                    Task {
+                        await viewModel.saveProfile()
+                        if viewModel.isProfileCompleted {
+                            await sessionManager.refreshUserProfile()
+                        }
+                    }
+                } label: {
                     Text("Kaydet")
                         .padding()
                         .bold()
@@ -35,6 +52,7 @@ struct CompleteProfileView: View {
                         .foregroundStyle(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
+                .disabled(viewModel.isSaving)
               }
             .padding()
          }
@@ -43,4 +61,5 @@ struct CompleteProfileView: View {
 
 #Preview {
     CompleteProfileView()
+        .environmentObject(SessionManager())
 }
