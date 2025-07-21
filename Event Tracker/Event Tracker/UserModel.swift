@@ -9,6 +9,7 @@ import Foundation
 
 struct UserModel {
     let uid: String
+    let email: String?
     let firstName: String?
     let lastName: String?
 }
