@@ -20,7 +20,11 @@ struct RootView: View {
             NavigationStack(path: $router.path) {
                 Group {
                     if sessionManager.isSignedIn {
-                        MainView(userEmail: sessionManager.user?.email ?? "")
+                        if let _ = sessionManager.userProfile {
+                            MainView(userEmail: sessionManager.user?.email ?? "")
+                        } else {
+                            CompleteProfileView()
+                        }
                     } else {
                         LoginView()
                     }
