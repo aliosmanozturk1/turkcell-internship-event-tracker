@@ -23,11 +23,11 @@ struct RootView: View {
                         if let _ = sessionManager.userProfile {
                             TabView {
                                 Tab("Events", systemImage: "figure.socialdance") {
-                                    
+                                    EventView()
                                 }
 
-                                Tab("Map", systemImage: "map.fill") {
-                                    
+                                Tab("Create Event", systemImage: "calendar.badge.plus") {
+                                    CreateEventView()
                                 }
 
                                 Tab("Profile", systemImage: "person.crop.circle") {
