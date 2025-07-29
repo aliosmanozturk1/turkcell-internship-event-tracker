@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Events collection rules
+    match /events/{eventId} {
+      // Allow read if event is active or user is the creator
+      allow read: if resource.data.status == 'active' || 
+                     (request.auth != null && resource.data.createdBy == request.auth.uid);
+      
+      // Allow create if user is authenticated and the createdBy field matches the user
+      allow create: if request.auth != null && 
+                       request.auth.uid == resource.data.createdBy &&
+                       isValidEventData(resource.data);
+      
+      // Allow update if user is the creator and maintains data integrity
+      allow update: if request.auth != null && 
+                       request.auth.uid == resource.data.createdBy &&
+                       isValidEventUpdate(resource.data, request.resource.data);
+      
+      // Allow delete if user is the creator
+      allow delete: if request.auth != null && 
+                       request.auth.uid == resource.data.createdBy;
+    }
+    
+    // Users collection rules
+    match /users/{userId} {
+      // Users can read and write their own data
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Categories collection rules (read-only for all authenticated users)
+    match /categories/{categoryId} {
+      allow read: if request.auth != null;
+    }
+    
+    // Helper functions
+    function isValidEventData(data) {
+      return data.keys().hasAll(['title', 'description', 'categories', 'startDate', 'endDate', 'location', 'organizer', 'createdBy', 'createdAt', 'updatedAt', 'status']) &&
+             data.title is string && data.title.size() > 0 &&
+             data.description is string && data.description.size() > 0 &&
+             data.categories is list && data.categories.size() > 0 &&
+             data.startDate is timestamp &&
+             data.endDate is timestamp &&
+             data.startDate < data.endDate &&
+             data.status in ['active', 'cancelled', 'completed', 'draft'] &&
+             data.createdBy is string &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp;
+    }
+    
+    function isValidEventUpdate(oldData, newData) {
+      return newData.createdBy == oldData.createdBy &&
+             newData.createdAt == oldData.createdAt &&
+             newData.updatedAt is timestamp &&
+             newData.updatedAt > oldData.updatedAt &&
+             isValidEventData(newData);
+    }
+  }
+}
