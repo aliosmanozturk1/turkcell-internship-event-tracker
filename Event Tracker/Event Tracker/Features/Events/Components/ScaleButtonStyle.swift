@@ -5,6 +5,7 @@
 //  Created by Ali Osman Öztürk on 22.07.2025.
 //
 import SwiftUI
+import Combine
 
 struct ScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
