@@ -8,20 +8,22 @@
 import SwiftUI
 
 struct EventView: View {
+    @StateObject private var viewModel = EventViewModel()
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-                    Text("Başlık")
-                        .font(.headline)
-                    Text("Açıklama metni buraya gelecek.")
-                        .font(.subheadline)
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                ForEach(viewModel.events) { event in
+                    EventCardView(event: event)
                 }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color.white)
-                        .shadow(radius: 5)
-                )
-                .padding(.horizontal)
+            }
+            .padding()
+        }
+        .onAppear {
+            if viewModel.events.isEmpty {
+                Task { await viewModel.loadEvents() }
+            }
+        }
     }
 }
 

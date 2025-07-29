@@ -4,8 +4,9 @@
 //
 //  Created by Ali Osman Öztürk on 22.07.2025.
 //
-import Combine
+
 import SwiftUI
+import FirebaseAuth
 
 @MainActor
 class CreateEventViewModel: ObservableObject {
@@ -41,6 +42,90 @@ class CreateEventViewModel: ObservableObject {
     @Published var contactInfo = ""
     @Published var imageURL = ""
     @Published var hasGalleryImages = false
-    
-    
+
+    @Published var isSaving = false
+    @Published var errorMessage: String?
+    @Published var isEventCreated = false
+
+    func createEvent() async {
+        guard let user = AuthService.shared.currentUser else {
+            errorMessage = "User not found"
+            return
+        }
+
+        isSaving = true
+        errorMessage = nil
+
+        let location = EventLocation(
+            name: locationName,
+            address1: locationAddress1,
+            address2: locationAddress2,
+            city: locationCity,
+            district: locationDistrict,
+            latitude: locationLatitude,
+            longitude: locationLongitude
+        )
+
+        let participants = EventParticipants(
+            maxParticipants: Int(maxParticipants) ?? 0,
+            currentParticipants: Int(currentParticipants) ?? 0,
+            showRemaining: showRemaining
+        )
+
+        let ageRestriction = AgeRestriction(
+            minAge: Int(minAge),
+            maxAge: Int(maxAge)
+        )
+
+        let organizer = EventOrganizer(
+            name: organizerName,
+            email: organizerEmail,
+            phone: organizerPhone,
+            website: organizerWebsite
+        )
+
+        let pricing = EventPricing(
+            price: Double(price) ?? 0,
+            currency: currency
+        )
+
+        guard let eventStatus = EventStatus(rawValue: status) else {
+            errorMessage = "Invalid status"
+            isSaving = false
+            return
+        }
+
+        let event = CreateEventModel(
+            title: title,
+            description: description,
+            categories: Array(selectedCategories),
+            whatToExpected: whatToExpected,
+            startDate: startDate,
+            endDate: endDate,
+            registrationDeadline: registrationDeadline,
+            location: location,
+            participants: participants,
+            ageRestriction: ageRestriction,
+            language: language,
+            requirements: requirements,
+            organizer: organizer,
+            pricing: pricing,
+            status: eventStatus,
+            socialLinks: socialLinks,
+            contactInfo: contactInfo,
+            imageURL: imageURL,
+            hasGalleryImages: hasGalleryImages,
+            createdBy: user.uid
+        )
+
+        do {
+            try await EventService.shared.createEvent(event)
+            isEventCreated = true
+        } catch {
+            errorMessage = error.localizedDescription
+            isEventCreated = false
+        }
+
+        isSaving = false
+    }
 }

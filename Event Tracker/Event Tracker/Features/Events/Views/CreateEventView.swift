@@ -342,11 +342,12 @@ struct CreateEventView: View {
     // MARK: - Helper Functions
     private func saveEvent() {
         isLoading = true
-        
-        // TODO: Backend API call
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        Task {
+            await viewModel.createEvent()
             isLoading = false
-            dismiss()
+            if viewModel.isEventCreated {
+                dismiss()
+            }
         }
     }
     
