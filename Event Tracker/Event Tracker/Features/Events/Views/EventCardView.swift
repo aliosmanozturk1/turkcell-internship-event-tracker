@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct EventCardView: View {
-    let event: Event
+    let event: CreateEventModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -66,7 +66,7 @@ struct EventCardView: View {
                             .foregroundColor(.secondary)
                             .font(.caption)
                         
-                        Text(formatDate(event.startDateLocal))
+                        Text(formatDate(event.startDate))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -76,7 +76,7 @@ struct EventCardView: View {
                             .foregroundColor(.secondary)
                             .font(.caption)
                         
-                        Text(event.locationName)
+                        Text(event.location.name)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .lineLimit(1)
@@ -91,7 +91,7 @@ struct EventCardView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
-                        Text(event.organizerName)
+                        Text(event.organizer.name)
                             .font(.caption)
                             .fontWeight(.medium)
                     }
@@ -99,8 +99,8 @@ struct EventCardView: View {
                     Spacer()
                     
                     // Price
-                    if event.price > 0 {
-                        Text("\(Int(event.price)) \(event.currency)")
+                    if event.pricing.price > 0 {
+                        Text("\(Int(event.pricing.price)) \(event.pricing.currency)")
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(.primary)
@@ -124,55 +124,30 @@ struct EventCardView: View {
         )
     }
     
-    private func formatDate(_ dateString: String) -> String {
-        // Bu fonksiyonu kendi tarih formatınıza göre düzenleyin
-        // Örnek basit format
-        return dateString.prefix(10).replacingOccurrences(of: "-", with: "/")
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
-}
-
-// Event Model
-struct Event {
-    let id: String
-    let title: String
-    let categories: [String]
-    let startDateLocal: String
-    let locationName: String
-    let organizerName: String
-    let imageURL: String
-    let price: Double
-    let currency: String
 }
 
 // Preview
 struct EventCardView_Previews: PreviewProvider {
     static var previews: some View {
-        let sampleEvent = Event(
-            id: "1",
+        let sampleEvent = CreateEventModel(
             title: "iOS Developer Meetup - SwiftUI ile Modern Uygulama Geliştirme",
             categories: ["Teknoloji", "Yazılım", "Networking"],
-            startDateLocal: "2025-08-15T19:00:00",
-            locationName: "ITU Teknokent",
-            organizerName: "İstanbul iOS Developers",
+            startDate: Date(),
+            location: EventLocation(name: "ITU Teknokent"),
+            organizer: EventOrganizer(name: "İstanbul iOS Developers"),
+            pricing: EventPricing(price: 0, currency: "TL"),
             imageURL: "https://example.com/event-image.jpg",
-            price: 0,
-            currency: "TL"
+            createdBy: "1"
         )
         
         VStack(spacing: 20) {
             EventCardView(event: sampleEvent)
-            
-            EventCardView(event: Event(
-                id: "2",
-                title: "Digital Marketing Summit 2025",
-                categories: ["Marketing", "Dijital"],
-                startDateLocal: "2025-09-20T09:00:00",
-                locationName: "Hilton Convention Center",
-                organizerName: "Marketing Pro Events",
-                imageURL: "https://example.com/marketing-event.jpg",
-                price: 150,
-                currency: "TL"
-            ))
         }
         .padding()
         .previewLayout(.sizeThatFits)
