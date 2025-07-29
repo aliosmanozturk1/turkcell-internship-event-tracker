@@ -9,40 +9,18 @@ import SwiftUI
 
 struct CategorySelector: View {
     @Binding var selectedCategories: Set<String>
-    @State private var searchText = ""
     @State private var showingCategorySheet = false
-    
-    let categories: [(key: String, name: String, icon: String, color: Color)] = [
-        ("art", "Sanat", "paintbrush.fill", .purple),
-        ("business", "İş", "briefcase.fill", .blue),
-        ("charity", "Hayırseverlik", "heart.fill", .pink),
-        ("community", "Topluluk", "person.3.fill", .orange),
-        ("education", "Eğitim", "graduationcap.fill", .indigo),
-        ("family", "Aile", "house.fill", .green),
-        ("fashion", "Moda", "tshirt.fill", .purple),
-        ("festival", "Festival", "party.popper.fill", .yellow),
-        ("film_media", "Film & Medya", "tv.fill", .red),
-        ("food_drink", "Yemek & İçecek", "fork.knife", .orange),
-        ("gaming", "Oyun", "gamecontroller.fill", .blue),
-        ("health_wellness", "Sağlık", "heart.circle.fill", .green),
-        ("literature", "Edebiyat", "book.fill", .brown),
-        ("music", "Müzik", "music.note", .purple),
-        ("networking", "Networking", "link", .blue),
-        ("outdoor", "Açık Hava", "tree.fill", .green),
-        ("party", "Parti", "balloon.fill", .pink),
-        ("politics", "Politika", "building.columns.fill", .gray),
-        ("religion_spirituality", "Din & Maneviyat", "moon.stars.fill", .indigo),
-        ("science", "Bilim", "atom", .cyan),
-        ("sports", "Spor", "sportscourt.fill", .orange),
-        ("technology", "Teknoloji", "laptopcomputer", .blue),
-        ("theater", "Tiyatro", "theatermasks.fill", .red),
-        ("travel", "Seyahat", "airplane", .blue),
-        ("workshop", "Atölye", "hammer.fill", .gray)
-    ]
+    @StateObject private var viewModel = CategoryViewModel()
     
     var selectedCategoryObjects: [(key: String, name: String, icon: String, color: Color)] {
         selectedCategories.compactMap { selected in
-            categories.first { $0.key == selected }
+            guard let category = viewModel.categories.first(where: { $0.id == selected }) else {
+                return nil
+            }
+            return (key: category.id,
+                    name: category.name,
+                    icon: category.icon,
+                    color: category.swiftUIColor)
         }
     }
     
@@ -144,8 +122,12 @@ struct CategorySelector: View {
         .sheet(isPresented: $showingCategorySheet) {
             CategoryPicker(
                 selectedCategories: $selectedCategories,
-                categories: categories
+                categories: viewModel.categories,
+                groups: viewModel.groups
             )
+        }
+        .task {
+            await viewModel.loadData()
         }
     }
 }
