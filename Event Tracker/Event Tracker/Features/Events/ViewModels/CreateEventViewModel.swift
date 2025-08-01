@@ -41,8 +41,7 @@ class CreateEventViewModel: ObservableObject {
     @Published var status = "active"
     @Published var socialLinks = ""
     @Published var contactInfo = ""
-    @Published var imageURL = ""
-    @Published var hasGalleryImages = false
+    @Published var imageURLs: [String] = []
 
     @Published var isSaving = false
     @Published var errorMessage: String?
@@ -114,8 +113,7 @@ class CreateEventViewModel: ObservableObject {
             status: eventStatus,
             socialLinks: socialLinks,
             contactInfo: contactInfo,
-            imageURL: imageURL,
-            hasGalleryImages: hasGalleryImages,
+            imageURLs: imageURLs,
             createdBy: user.uid
         )
 
