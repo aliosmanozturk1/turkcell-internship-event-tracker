@@ -14,7 +14,7 @@ struct EventCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Event Banner Image
-            AsyncImage(url: URL(string: event.imageURL)) { image in
+            AsyncImage(url: URL(string: event.imageUrls.first ?? "")) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -142,7 +142,7 @@ struct EventCardView_Previews: PreviewProvider {
             location: EventLocation(name: "ITU Teknokent"),
             organizer: EventOrganizer(name: "İstanbul iOS Developers"),
             pricing: EventPricing(price: 0, currency: "TL"),
-            imageURL: "https://example.com/event-image.jpg",
+            imageUrls: ["https://example.com/event-image.jpg"],
             createdBy: "1"
         )
         
