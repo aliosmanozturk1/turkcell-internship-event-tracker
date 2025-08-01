@@ -4,7 +4,6 @@ import Combine
 struct CreateEventView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = CreateEventViewModel()
-    @State private var showingImagePicker = false
     @State private var showingGalleryPicker = false
     @State private var isLoading = false
     
@@ -21,8 +20,8 @@ struct CreateEventView: View {
                 
                 ScrollView {
                     LazyVStack(spacing: 32) {
-                        // MARK: - Event Image
-                        eventImageSection
+                        // MARK: - Event Images
+                        imagesSection
                         
                         // MARK: - Basic Info
                         basicInfoSection
@@ -48,8 +47,6 @@ struct CreateEventView: View {
                         // MARK: - Additional Info
                         additionalInfoSection
                         
-                        // MARK: - Gallery
-                        gallerySection
                         
                         Spacer(minLength: 20)
                     }
@@ -90,72 +87,70 @@ struct CreateEventView: View {
         }
     }
     
-    // MARK: - Event Image Section
-    private var eventImageSection: some View {
-        FormSectionCard(title: "Event Görseli", isRequired: true, icon: "photo") {
-            Button(action: {
-                showingImagePicker = true
-            }) {
-                if viewModel.imageURL.isEmpty {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(height: 200)
-                        .overlay(
-                            VStack(spacing: 12) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.blue.opacity(0.1))
-                                        .frame(width: 60, height: 60)
-                                    
-                                    Image(systemName: "photo.badge.plus")
-                                        .font(.title2)
-                                        .foregroundColor(.blue)
-                                }
-                                
-                                VStack(spacing: 4) {
-                                    Text("Fotoğraf Seç")
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-                                    Text("Event'inizi en iyi şekilde temsil eden görseli seçin")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                        .multilineTextAlignment(.center)
-                                }
-                            }
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.blue.opacity(0.3), style: StrokeStyle(lineWidth: 1, dash: [5]))
-                        )
-                } else {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.green.opacity(0.1))
-                        .frame(height: 200)
+    // MARK: - Images Section
+    private var imagesSection: some View {
+        FormSectionCard(title: "Event Fotoğrafları", isRequired: true, icon: "photo.on.rectangle") {
+            VStack(spacing: 12) {
+                Button {
+                    showingGalleryPicker = true
+                } label: {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.gray.opacity(0.05))
+                        .frame(height: 100)
                         .overlay(
                             VStack(spacing: 8) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.largeTitle)
-                                    .foregroundColor(.green)
-                                Text("Görsel Seçildi")
-                                    .font(.headline)
-                                    .foregroundColor(.green)
+                                Image(systemName: "photo.on.rectangle")
+                                    .font(.title2)
+                                    .foregroundColor(.blue)
+                                Text("Fotoğraf Seç")
+                                    .font(.subheadline)
+                                    .foregroundColor(.blue)
+                                Text("Birden fazla fotoğraf seçebilirsiniz")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
                         )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.blue.opacity(0.2), style: StrokeStyle(lineWidth: 1, dash: [3]))
+                        )
                 }
-            }
-            .buttonStyle(ScaleButtonStyle())
-            .sheet(isPresented: $showingImagePicker) {
-                Text("Image Picker - TODO")
+                .buttonStyle(ScaleButtonStyle())
+                .sheet(isPresented: $showingGalleryPicker) {
+                    Text("Image Picker - TODO")
+                }
+
+                if !viewModel.galleryImageURLs.isEmpty {
+                    List {
+                        ForEach(viewModel.galleryImageURLs.indices, id: \.self) { index in
+                            HStack {
+                                Image(systemName: index == viewModel.coverImageIndex ? "star.fill" : "photo")
+                                    .foregroundColor(index == viewModel.coverImageIndex ? .yellow : .blue)
+                                Text("Fotoğraf \(index + 1)")
+                            }
+                            .onTapGesture { viewModel.coverImageIndex = index }
+                        }
+                        .onMove { indices, newOffset in
+                            viewModel.galleryImageURLs.move(fromOffsets: indices, toOffset: newOffset)
+                            if let first = indices.first {
+                                if first == viewModel.coverImageIndex {
+                                    viewModel.coverImageIndex = newOffset > first ? newOffset - 1 : newOffset
+                                } else if first < viewModel.coverImageIndex && newOffset > viewModel.coverImageIndex {
+                                    viewModel.coverImageIndex -= 1
+                                } else if first > viewModel.coverImageIndex && newOffset <= viewModel.coverImageIndex {
+                                    viewModel.coverImageIndex += 1
+                                }
+                            }
+                        }
+                        .editActions(.move)
+                    }
+                    .frame(minHeight: 50)
+                    .listStyle(.plain)
+                }
             }
         }
     }
-    
+
     // MARK: - Basic Info Section
     private var basicInfoSection: some View {
         FormSectionCard(title: "Temel Bilgiler", icon: "info.circle") {
@@ -290,51 +285,6 @@ struct CreateEventView: View {
                 
                 ModernTextField("Sosyal Medya Linkleri", text: $viewModel.socialLinks)
                 ModernTextField("İletişim Bilgileri", text: $viewModel.contactInfo)
-            }
-        }
-    }
-    
-    // MARK: - Gallery Section
-    private var gallerySection: some View {
-        FormSectionCard(title: "Galeri Görselleri", icon: "photo.stack") {
-            Button(action: {
-                showingGalleryPicker = true
-            }) {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.05))
-                    .frame(height: 100)
-                    .overlay(
-                        VStack(spacing: 8) {
-                            Image(systemName: "photo.stack")
-                                .font(.title2)
-                                .foregroundColor(.blue)
-                            Text("Galeri Fotoğrafları Seç")
-                                .font(.subheadline)
-                                .foregroundColor(.blue)
-                            Text("Maksimum 5 fotoğraf")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.blue.opacity(0.2), style: StrokeStyle(lineWidth: 1, dash: [3]))
-                    )
-            }
-            .buttonStyle(ScaleButtonStyle())
-            .sheet(isPresented: $showingGalleryPicker) {
-                Text("Gallery Picker - TODO")
-            }
-            
-            if viewModel.hasGalleryImages {
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                    Text("Galeri fotoğrafları seçildi")
-                        .font(.caption)
-                        .foregroundColor(.green)
-                }
-                .padding(.top, 8)
             }
         }
     }

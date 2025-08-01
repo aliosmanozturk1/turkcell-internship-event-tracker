@@ -28,6 +28,7 @@ struct CreateEventModel: Identifiable, Codable {
     var socialLinks: String
     var contactInfo: String
     var imageURL: String
+    var galleryImageURLs: [String]
     var hasGalleryImages: Bool
     var createdAt: Date
     var updatedAt: Date
@@ -52,6 +53,7 @@ struct CreateEventModel: Identifiable, Codable {
         socialLinks: String = "",
         contactInfo: String = "",
         imageURL: String = "",
+        galleryImageURLs: [String] = [],
         hasGalleryImages: Bool = false,
         createdBy: String = ""
     ) {
@@ -73,6 +75,7 @@ struct CreateEventModel: Identifiable, Codable {
         self.socialLinks = socialLinks
         self.contactInfo = contactInfo
         self.imageURL = imageURL
+        self.galleryImageURLs = galleryImageURLs
         self.hasGalleryImages = hasGalleryImages
         self.createdAt = Date()
         self.updatedAt = Date()
