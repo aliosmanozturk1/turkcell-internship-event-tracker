@@ -42,7 +42,8 @@ class CreateEventViewModel: ObservableObject {
     @Published var socialLinks = ""
     @Published var contactInfo = ""
     @Published var imageURL = ""
-    @Published var hasGalleryImages = false
+    @Published var galleryImageURLs: [String] = []
+    @Published var coverImageIndex: Int = 0
 
     @Published var isSaving = false
     @Published var errorMessage: String?
@@ -96,6 +97,7 @@ class CreateEventViewModel: ObservableObject {
             return
         }
 
+        let coverURL = galleryImageURLs.indices.contains(coverImageIndex) ? galleryImageURLs[coverImageIndex] : imageURL
         let event = CreateEventModel(
             title: title,
             description: description,
@@ -114,8 +116,9 @@ class CreateEventViewModel: ObservableObject {
             status: eventStatus,
             socialLinks: socialLinks,
             contactInfo: contactInfo,
-            imageURL: imageURL,
-            hasGalleryImages: hasGalleryImages,
+            imageURL: coverURL,
+            galleryImageURLs: galleryImageURLs,
+            coverImageIndex: coverImageIndex,
             createdBy: user.uid
         )
 
