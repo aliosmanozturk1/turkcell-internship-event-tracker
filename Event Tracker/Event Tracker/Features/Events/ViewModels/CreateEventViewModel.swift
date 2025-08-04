@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseAuth
 import Combine
+import UIKit
 
 @MainActor
 class CreateEventViewModel: ObservableObject {
@@ -41,8 +42,7 @@ class CreateEventViewModel: ObservableObject {
     @Published var status = "active"
     @Published var socialLinks = ""
     @Published var contactInfo = ""
-    @Published var imageURL = ""
-    @Published var hasGalleryImages = false
+    @Published var images: [UIImage] = []
 
     @Published var isSaving = false
     @Published var errorMessage: String?
@@ -96,6 +96,16 @@ class CreateEventViewModel: ObservableObject {
             return
         }
 
+        var uploadedImages: [EventImage] = []
+        if !images.isEmpty {
+            do {
+                uploadedImages = try await ImageStorageService.shared.uploadImages(images)
+                images.removeAll()
+            } catch {
+                errorMessage = "Görseller yüklenemedi: \(error.localizedDescription)"
+            }
+        }
+
         let event = CreateEventModel(
             title: title,
             description: description,
@@ -114,8 +124,7 @@ class CreateEventViewModel: ObservableObject {
             status: eventStatus,
             socialLinks: socialLinks,
             contactInfo: contactInfo,
-            imageURL: imageURL,
-            hasGalleryImages: hasGalleryImages,
+            images: uploadedImages,
             createdBy: user.uid
         )
 
