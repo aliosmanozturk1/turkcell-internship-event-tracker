@@ -10,8 +10,16 @@ final class EventService {
         firestore.collection("events")
     }
 
-    func createEvent(_ event: CreateEventModel) async throws {
-        try eventsCollection.addDocument(from: event)
+    func generateEventID() -> String {
+        eventsCollection.document().documentID
+    }
+
+    func createEvent(_ event: CreateEventModel, id: String? = nil) async throws {
+        if let id = id {
+            try eventsCollection.document(id).setData(from: event)
+        } else {
+            try eventsCollection.addDocument(from: event)
+        }
     }
 
     func fetchEvents() async throws -> [CreateEventModel] {

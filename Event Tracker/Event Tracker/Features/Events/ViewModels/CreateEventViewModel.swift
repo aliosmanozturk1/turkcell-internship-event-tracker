@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseAuth
 import Combine
+import UIKit
 
 @MainActor
 class CreateEventViewModel: ObservableObject {
@@ -41,8 +42,9 @@ class CreateEventViewModel: ObservableObject {
     @Published var status = "active"
     @Published var socialLinks = ""
     @Published var contactInfo = ""
-    @Published var imageURL = ""
-    @Published var hasGalleryImages = false
+    @Published var images: [UIImage] = []
+    @Published var imageURLs: [String] = []
+    @Published var thumbnailURLs: [String] = []
 
     @Published var isSaving = false
     @Published var errorMessage: String?
@@ -96,6 +98,18 @@ class CreateEventViewModel: ObservableObject {
             return
         }
 
+        let eventId = EventService.shared.generateEventID()
+
+        do {
+            let (uploadedURLs, uploadedThumbs) = try await StorageService.shared.uploadEventImages(images, eventId: eventId)
+            imageURLs = uploadedURLs
+            thumbnailURLs = uploadedThumbs
+        } catch {
+            errorMessage = error.localizedDescription
+            isSaving = false
+            return
+        }
+
         let event = CreateEventModel(
             title: title,
             description: description,
@@ -114,13 +128,13 @@ class CreateEventViewModel: ObservableObject {
             status: eventStatus,
             socialLinks: socialLinks,
             contactInfo: contactInfo,
-            imageURL: imageURL,
-            hasGalleryImages: hasGalleryImages,
+            imageURLs: imageURLs,
+            thumbnailURLs: thumbnailURLs,
             createdBy: user.uid
         )
 
         do {
-            try await EventService.shared.createEvent(event)
+            try await EventService.shared.createEvent(event, id: eventId)
             isEventCreated = true
         } catch {
             errorMessage = error.localizedDescription
