@@ -150,9 +150,9 @@ private struct ImageDropDelegate: DropDelegate {
 struct FullScreenImageView: View {
     let image: UIImage
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
-        ZoomableScrollView(image: image)
+        ZoomableImageView(image: image)
             .ignoresSafeArea()
             .background(Color.black)
             .overlay(alignment: .topTrailing) {
@@ -169,34 +169,44 @@ struct FullScreenImageView: View {
     }
 }
 
-struct ZoomableScrollView: UIViewRepresentable {
+struct ZoomableImageView: View {
     let image: UIImage
-    
-    func makeUIView(context: Context) -> UIScrollView {
-        let scrollView = UIScrollView()
-        scrollView.minimumZoomScale = 1
-        scrollView.maximumZoomScale = 4
-        scrollView.delegate = context.coordinator
-        let imageView = UIImageView(image: image)
-        imageView.contentMode = .scaleAspectFit
-        imageView.frame = UIScreen.main.bounds
-        scrollView.addSubview(imageView)
-        context.coordinator.imageView = imageView
-        return scrollView
-    }
-    
-    func updateUIView(_ uiView: UIScrollView, context: Context) {
-        // no-op
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
-    
-    class Coordinator: NSObject, UIScrollViewDelegate {
-        var imageView: UIImageView?
-        func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-            imageView
+    @State private var scale: CGFloat = 1
+    @State private var offset: CGSize = .zero
+    @State private var lastScale: CGFloat = 1
+    @State private var lastOffset: CGSize = .zero
+
+    var body: some View {
+        GeometryReader { _ in
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .scaleEffect(scale)
+                .offset(offset)
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            offset = CGSize(width: lastOffset.width + value.translation.width,
+                                            height: lastOffset.height + value.translation.height)
+                        }
+                        .onEnded { _ in
+                            lastOffset = offset
+                        }
+                )
+                .simultaneousGesture(
+                    MagnificationGesture()
+                        .onChanged { value in
+                            scale = min(max(lastScale * value, 1), 4)
+                        }
+                        .onEnded { _ in
+                            lastScale = scale
+                            if scale == 1 {
+                                offset = .zero
+                                lastOffset = .zero
+                            }
+                        }
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
