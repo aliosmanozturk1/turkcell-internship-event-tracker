@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 import FirebaseAuth
 import Combine
 
@@ -41,8 +42,7 @@ class CreateEventViewModel: ObservableObject {
     @Published var status = "active"
     @Published var socialLinks = ""
     @Published var contactInfo = ""
-    @Published var imageURL = ""
-    @Published var hasGalleryImages = false
+    @Published var selectedImages: [UIImage] = []
 
     @Published var isSaving = false
     @Published var errorMessage: String?
@@ -96,6 +96,9 @@ class CreateEventViewModel: ObservableObject {
             return
         }
 
+        let uploadedImages = try? await ImageUploader.upload(images: selectedImages)
+        selectedImages.removeAll()
+
         let event = CreateEventModel(
             title: title,
             description: description,
@@ -114,8 +117,7 @@ class CreateEventViewModel: ObservableObject {
             status: eventStatus,
             socialLinks: socialLinks,
             contactInfo: contactInfo,
-            imageURL: imageURL,
-            hasGalleryImages: hasGalleryImages,
+            images: uploadedImages ?? [],
             createdBy: user.uid
         )
 
