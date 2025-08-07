@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseFirestore
 
-struct CreateEventModel: Identifiable, Codable {
+struct CreateEventModel: Identifiable, Codable, Hashable {
     @DocumentID var id: String?
     var title: String
     var description: String
@@ -77,7 +77,7 @@ struct CreateEventModel: Identifiable, Codable {
     }
 }
 
-struct EventLocation: Codable {
+struct EventLocation: Codable, Hashable {
     var name: String
     var address1: String
     var address2: String
@@ -110,7 +110,7 @@ struct EventLocation: Codable {
     }
 }
 
-struct EventParticipants: Codable {
+struct EventParticipants: Codable, Hashable {
     var maxParticipants: Int
     var currentParticipants: Int
     var showRemaining: Bool
@@ -134,7 +134,7 @@ struct EventParticipants: Codable {
     }
 }
 
-struct AgeRestriction: Codable {
+struct AgeRestriction: Codable, Hashable {
     var minAge: Int?
     var maxAge: Int?
     
@@ -157,7 +157,7 @@ struct AgeRestriction: Codable {
     }
 }
 
-struct EventOrganizer: Codable {
+struct EventOrganizer: Codable, Hashable {
     var name: String
     var email: String
     var phone: String
@@ -176,7 +176,7 @@ struct EventOrganizer: Codable {
     }
 }
 
-struct EventPricing: Codable {
+struct EventPricing: Codable, Hashable {
     var price: Double
     var currency: String
     

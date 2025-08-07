@@ -10,6 +10,7 @@ import SwiftUI
 
 struct EventCardView: View {
     let event: CreateEventModel
+    @EnvironmentObject private var router: Router
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -122,6 +123,9 @@ struct EventCardView: View {
             RoundedRectangle(cornerRadius: 16)
                 .stroke(Color.gray.opacity(0.2), lineWidth: 0.5)
         )
+        .onTapGesture {
+            router.push(.eventDetail(event))
+        }
     }
     
     private func formatDate(_ date: Date) -> String {

@@ -45,6 +45,8 @@ struct RootView: View {
                     switch route {
                     case .register:
                         RegisterView()
+                    case .eventDetail(let event):
+                        EventDetailView(event: event)
                     }
                 }
             }
