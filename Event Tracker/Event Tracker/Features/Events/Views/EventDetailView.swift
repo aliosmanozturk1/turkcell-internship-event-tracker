@@ -1,8 +1,12 @@
 import SwiftUI
 
 struct EventDetailView: View {
-    let event: CreateEventModel
+    @StateObject private var viewModel: EventDetailViewModel
     @Environment(\.dismiss) private var dismiss
+    
+    init(event: CreateEventModel) {
+        self._viewModel = StateObject(wrappedValue: EventDetailViewModel(event: event))
+    }
     
     var body: some View {
         NavigationView {
@@ -50,7 +54,7 @@ struct EventDetailView: View {
                     .padding(.top, 8)
                 }
             }
-            .navigationTitle(event.title)
+            .navigationTitle(viewModel.event.title)
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -62,16 +66,16 @@ struct EventDetailView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
-                        Button(action: shareEvent) {
+                        ShareLink(item: viewModel.shareContent) {
                             Label("Paylaş", systemImage: "square.and.arrow.up")
                         }
                         
-                        Button(action: addToCalendar) {
+                        Button(action: { viewModel.addToCalendar() }) {
                             Label("Takvime Ekle", systemImage: "calendar.badge.plus")
                         }
                         
-                        if !event.organizer.website.isEmpty {
-                            Button(action: visitWebsite) {
+                        if !viewModel.event.organizer.website.isEmpty {
+                            Button(action: { viewModel.visitWebsite() }) {
                                 Label("Website", systemImage: "globe")
                             }
                         }
@@ -82,15 +86,20 @@ struct EventDetailView: View {
                 }
             }
         }
+        .alert("Takvim", isPresented: $viewModel.showingCalendarAlert) {
+            Button("Tamam", role: .cancel) { }
+        } message: {
+            Text(viewModel.calendarAlertMessage)
+        }
     }
     
     // MARK: - Photo Gallery Section
     private var photoGallerySection: some View {
         FormSectionCard(title: "Event Fotoğrafları", icon: "photo.on.rectangle") {
-            if !event.images.isEmpty {
+            if !viewModel.event.images.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
-                        ForEach(event.images, id: \.id) { image in
+                        ForEach(viewModel.event.images, id: \.id) { image in
                             AsyncImage(url: URL(string: image.url)) { img in
                                 img
                                     .resizable()
@@ -133,11 +142,11 @@ struct EventDetailView: View {
     private var basicInfoSection: some View {
         FormSectionCard(title: "Event Bilgileri", icon: "info.circle") {
             VStack(alignment: .leading, spacing: 16) {
-                if !event.description.isEmpty {
-                    DetailRow(title: "Açıklama", value: event.description, isMultiline: true)
+                if !viewModel.event.description.isEmpty {
+                    DetailRow(title: "Açıklama", value: viewModel.event.description, isMultiline: true)
                 }
                 
-                if !event.categories.isEmpty {
+                if !viewModel.event.categories.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Kategoriler")
                             .font(.caption)
@@ -146,7 +155,7 @@ struct EventDetailView: View {
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
-                                ForEach(event.categories, id: \.self) { category in
+                                ForEach(viewModel.event.categories, id: \.self) { category in
                                     Text(category)
                                         .font(.caption)
                                         .fontWeight(.medium)
@@ -163,8 +172,8 @@ struct EventDetailView: View {
                     }
                 }
                 
-                if !event.whatToExpected.isEmpty {
-                    DetailRow(title: "Ne Beklemeli?", value: event.whatToExpected, isMultiline: true)
+                if !viewModel.event.whatToExpected.isEmpty {
+                    DetailRow(title: "Ne Beklemeli?", value: viewModel.event.whatToExpected, isMultiline: true)
                 }
                 
                 // Event Status
@@ -176,16 +185,16 @@ struct EventDetailView: View {
                     
                     Spacer()
                     
-                    Text(event.status.displayName)
+                    Text(viewModel.event.status.displayName)
                         .font(.caption)
                         .fontWeight(.medium)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(
                             Capsule()
-                                .fill(statusColor.opacity(0.1))
+                                .fill(viewModel.statusColor.opacity(0.1))
                         )
-                        .foregroundColor(statusColor)
+                        .foregroundColor(viewModel.statusColor)
                 }
             }
         }
@@ -195,14 +204,14 @@ struct EventDetailView: View {
     private var dateTimeSection: some View {
         FormSectionCard(title: "Tarih ve Saat", icon: "calendar") {
             VStack(spacing: 16) {
-                DetailRow(title: "Başlangıç", value: formatDate(event.startDate, includeTime: true))
+                DetailRow(title: "Başlangıç", value: viewModel.formatDate(viewModel.event.startDate, includeTime: true))
                 
-                if event.endDate > event.startDate {
-                    DetailRow(title: "Bitiş", value: formatDate(event.endDate, includeTime: true))
+                if viewModel.event.endDate > viewModel.event.startDate {
+                    DetailRow(title: "Bitiş", value: viewModel.formatDate(viewModel.event.endDate, includeTime: true))
                 }
                 
-                if event.registrationDeadline < event.startDate {
-                    DetailRow(title: "Kayıt Son Tarihi", value: formatDate(event.registrationDeadline, includeTime: true))
+                if viewModel.event.registrationDeadline < viewModel.event.startDate {
+                    DetailRow(title: "Kayıt Son Tarihi", value: viewModel.formatDate(viewModel.event.registrationDeadline, includeTime: true))
                 }
             }
         }
@@ -212,13 +221,13 @@ struct EventDetailView: View {
     private var locationSection: some View {
         FormSectionCard(title: "Konum Bilgileri", icon: "location") {
             VStack(spacing: 16) {
-                DetailRow(title: "Mekan", value: event.location.name)
+                DetailRow(title: "Mekan", value: viewModel.event.location.name)
                 
-                if !event.location.fullAddress.isEmpty {
-                    DetailRow(title: "Adres", value: event.location.fullAddress, isMultiline: true)
+                if !viewModel.event.location.fullAddress.isEmpty {
+                    DetailRow(title: "Adres", value: viewModel.event.location.fullAddress, isMultiline: true)
                 }
                 
-                if !event.location.latitude.isEmpty && !event.location.longitude.isEmpty {
+                if !viewModel.event.location.latitude.isEmpty && !viewModel.event.location.longitude.isEmpty {
                     HStack {
                         Text("Koordinatlar")
                             .font(.caption)
@@ -227,7 +236,7 @@ struct EventDetailView: View {
                         
                         Spacer()
                         
-                        Button(action: openMaps) {
+                        Button(action: { viewModel.openMaps() }) {
                             HStack(spacing: 4) {
                                 Image(systemName: "map")
                                     .font(.caption)
@@ -247,7 +256,7 @@ struct EventDetailView: View {
     private var participantsSection: some View {
         FormSectionCard(title: "Katılımcı Bilgileri", icon: "person.3") {
             VStack(spacing: 16) {
-                if event.participants.maxParticipants > 0 {
+                if viewModel.event.participants.maxParticipants > 0 {
                     HStack {
                         Text("Kapasite")
                             .font(.caption)
@@ -256,20 +265,20 @@ struct EventDetailView: View {
                         
                         Spacer()
                         
-                        Text("\(event.participants.currentParticipants)/\(event.participants.maxParticipants)")
+                        Text("\(viewModel.event.participants.currentParticipants)/\(viewModel.event.participants.maxParticipants)")
                             .font(.subheadline)
                             .fontWeight(.semibold)
                     }
                     
                     // Progress bar
-                    ProgressView(value: Double(event.participants.currentParticipants), total: Double(event.participants.maxParticipants))
-                        .progressViewStyle(LinearProgressViewStyle(tint: event.participants.isFull ? .red : .blue))
+                    ProgressView(value: Double(viewModel.event.participants.currentParticipants), total: Double(viewModel.event.participants.maxParticipants))
+                        .progressViewStyle(LinearProgressViewStyle(tint: viewModel.event.participants.isFull ? .red : .blue))
                     
-                    if event.participants.showRemaining && !event.participants.isFull {
-                        Text("\(event.participants.remainingSpots) kişilik yer kaldı")
+                    if viewModel.event.participants.showRemaining && !viewModel.event.participants.isFull {
+                        Text("\(viewModel.event.participants.remainingSpots) kişilik yer kaldı")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                    } else if event.participants.isFull {
+                    } else if viewModel.event.participants.isFull {
                         Text("Event dolu")
                             .font(.caption)
                             .foregroundColor(.red)
@@ -286,12 +295,12 @@ struct EventDetailView: View {
     private var requirementsSection: some View {
         FormSectionCard(title: "Yaş ve Gereksinimler", icon: "person.badge.shield.checkmark") {
             VStack(spacing: 16) {
-                DetailRow(title: "Yaş Sınırı", value: event.ageRestriction.ageRangeText)
+                DetailRow(title: "Yaş Sınırı", value: viewModel.event.ageRestriction.ageRangeText)
                 
-                DetailRow(title: "Dil", value: languageDisplayName(event.language))
+                DetailRow(title: "Dil", value: viewModel.languageDisplayName(viewModel.event.language))
                 
-                if !event.requirements.isEmpty {
-                    DetailRow(title: "Gereksinimler", value: event.requirements, isMultiline: true)
+                if !viewModel.event.requirements.isEmpty {
+                    DetailRow(title: "Gereksinimler", value: viewModel.event.requirements, isMultiline: true)
                 }
             }
         }
@@ -301,9 +310,9 @@ struct EventDetailView: View {
     private var organizerSection: some View {
         FormSectionCard(title: "Organizatör Bilgileri", icon: "person.crop.circle.badge.checkmark") {
             VStack(spacing: 16) {
-                DetailRow(title: "Organizatör", value: event.organizer.name)
+                DetailRow(title: "Organizatör", value: viewModel.event.organizer.name)
                 
-                if !event.organizer.email.isEmpty {
+                if !viewModel.event.organizer.email.isEmpty {
                     HStack {
                         Text("Email")
                             .font(.caption)
@@ -312,15 +321,15 @@ struct EventDetailView: View {
                         
                         Spacer()
                         
-                        Button(action: { sendEmail(to: event.organizer.email) }) {
-                            Text(event.organizer.email)
+                        Button(action: { viewModel.sendEmail(to: viewModel.event.organizer.email) }) {
+                            Text(viewModel.event.organizer.email)
                                 .font(.subheadline)
                                 .foregroundColor(.blue)
                         }
                     }
                 }
                 
-                if !event.organizer.phone.isEmpty {
+                if !viewModel.event.organizer.phone.isEmpty {
                     HStack {
                         Text("Telefon")
                             .font(.caption)
@@ -329,15 +338,15 @@ struct EventDetailView: View {
                         
                         Spacer()
                         
-                        Button(action: { callPhone(event.organizer.phone) }) {
-                            Text(event.organizer.phone)
+                        Button(action: { viewModel.callPhone(viewModel.event.organizer.phone) }) {
+                            Text(viewModel.event.organizer.phone)
                                 .font(.subheadline)
                                 .foregroundColor(.blue)
                         }
                     }
                 }
                 
-                if !event.organizer.website.isEmpty {
+                if !viewModel.event.organizer.website.isEmpty {
                     HStack {
                         Text("Website")
                             .font(.caption)
@@ -346,8 +355,8 @@ struct EventDetailView: View {
                         
                         Spacer()
                         
-                        Button(action: visitWebsite) {
-                            Text(event.organizer.website)
+                        Button(action: { viewModel.visitWebsite() }) {
+                            Text(viewModel.event.organizer.website)
                                 .font(.subheadline)
                                 .foregroundColor(.blue)
                                 .lineLimit(1)
@@ -369,10 +378,10 @@ struct EventDetailView: View {
                 
                 Spacer()
                 
-                Text(event.pricing.formattedPrice)
+                Text(viewModel.event.pricing.formattedPrice)
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(event.pricing.isFree ? .green : .primary)
+                    .foregroundColor(viewModel.event.pricing.isFree ? .green : .primary)
             }
         }
     }
@@ -381,18 +390,18 @@ struct EventDetailView: View {
     private var additionalInfoSection: some View {
         FormSectionCard(title: "Ek Bilgiler", icon: "ellipsis.circle") {
             VStack(spacing: 16) {
-                if !event.socialLinks.isEmpty {
-                    DetailRow(title: "Sosyal Medya", value: event.socialLinks, isMultiline: true)
+                if !viewModel.event.socialLinks.isEmpty {
+                    DetailRow(title: "Sosyal Medya", value: viewModel.event.socialLinks, isMultiline: true)
                 }
                 
-                if !event.contactInfo.isEmpty {
-                    DetailRow(title: "İletişim", value: event.contactInfo, isMultiline: true)
+                if !viewModel.event.contactInfo.isEmpty {
+                    DetailRow(title: "İletişim", value: viewModel.event.contactInfo, isMultiline: true)
                 }
                 
-                DetailRow(title: "Oluşturulma", value: formatDate(event.createdAt))
+                DetailRow(title: "Oluşturulma", value: viewModel.formatDate(viewModel.event.createdAt))
                 
-                if event.updatedAt > event.createdAt {
-                    DetailRow(title: "Son Güncelleme", value: formatDate(event.updatedAt))
+                if viewModel.event.updatedAt > viewModel.event.createdAt {
+                    DetailRow(title: "Son Güncelleme", value: viewModel.formatDate(viewModel.event.updatedAt))
                 }
             }
         }
@@ -439,83 +448,6 @@ struct EventDetailView: View {
         }
     }
     
-    // MARK: - Computed Properties
-    private var statusColor: Color {
-        switch event.status {
-        case .active:
-            return .green
-        case .cancelled:
-            return .red
-        case .completed:
-            return .blue
-        case .draft:
-            return .orange
-        }
-    }
-    
-    // MARK: - Helper Functions
-    private func formatDate(_ date: Date, includeTime: Bool = false) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "tr_TR")
-        
-        if includeTime {
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .short
-        } else {
-            formatter.dateStyle = .medium
-        }
-        
-        return formatter.string(from: date)
-    }
-    
-    private func languageDisplayName(_ languageCode: String) -> String {
-        switch languageCode {
-        case "tr":
-            return "Türkçe"
-        case "en":
-            return "English"
-        case "ar":
-            return "العربية"
-        default:
-            return languageCode
-        }
-    }
-    
-    private func shareEvent() {
-        // TODO: Implement share functionality
-        print("Share event: \(event.title)")
-    }
-    
-    private func addToCalendar() {
-        // TODO: Implement calendar integration
-        print("Add to calendar: \(event.title)")
-    }
-    
-    private func visitWebsite() {
-        if let url = URL(string: event.organizer.website) {
-            UIApplication.shared.open(url)
-        }
-    }
-    
-    private func sendEmail(to email: String) {
-        if let url = URL(string: "mailto:\(email)") {
-            UIApplication.shared.open(url)
-        }
-    }
-    
-    private func callPhone(_ phone: String) {
-        if let url = URL(string: "tel:\(phone)") {
-            UIApplication.shared.open(url)
-        }
-    }
-    
-    private func openMaps() {
-        if let lat = Double(event.location.latitude),
-           let lon = Double(event.location.longitude) {
-            let url = URL(string: "http://maps.apple.com/?ll=\(lat),\(lon)&q=\(event.location.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!
-            UIApplication.shared.open(url)
-        }
-    }
 }
 
 // MARK: - Preview
