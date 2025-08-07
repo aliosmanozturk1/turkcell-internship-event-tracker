@@ -13,36 +13,102 @@ struct EventCardView: View {
     @EnvironmentObject private var router: Router
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Event Banner Image
+        HStack(alignment: .center, spacing: 0) {
+            // Event Image - Left Side (Tam yaslı)
             AsyncImage(url: URL(string: event.images.first?.url ?? "")) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(height: 180)
+                    .frame(width: 100, height: 150)
                     .clipped()
+                    .clipShape(
+                        UnevenRoundedRectangle(
+                            topLeadingRadius: 12,
+                            bottomLeadingRadius: 12,
+                            bottomTrailingRadius: 0,
+                            topTrailingRadius: 0
+                        )
+                    )
             } placeholder: {
                 Rectangle()
                     .fill(Color.gray.opacity(0.3))
-                    .frame(height: 180)
+                    .frame(width: 100, height: 150)
+                    .clipShape(
+                        UnevenRoundedRectangle(
+                            topLeadingRadius: 12,
+                            bottomLeadingRadius: 12,
+                            bottomTrailingRadius: 0,
+                            topTrailingRadius: 0
+                        )
+                    )
                     .overlay(
                         Image(systemName: "photo")
                             .foregroundColor(.gray)
-                            .font(.largeTitle)
+                            .font(.title2)
                     )
             }
             
-            // Card Content
-            VStack(alignment: .leading, spacing: 12) {
-                // Categories
+            // Card Content - Right Side
+            VStack(alignment: .leading, spacing: 8) {
+                // Title - En Üste
+                Text(event.title)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .multilineTextAlignment(.leading)
+                    // .lineLimit(2)
+                    .padding(.top, 4)
+                    // .fixedSize(horizontal: false, vertical: true)
+                
+                // Date - Ayrı Satır
+                HStack(spacing: 4) {
+                    Image(systemName: "calendar")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                    
+                    Text(formatDate(event.startDate))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                }
+                
+                // Location - Ayrı Satır  
+                HStack(spacing: 4) {
+                    Image(systemName: "location")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                    
+                    Text(event.location.name)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                    
+                    Spacer()
+                }
+                
+                // Organizer
+                HStack(spacing: 4) {
+                    Image(systemName: "person")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                    
+                    Text(event.organizer.name)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                    
+                    Spacer()
+                }
+                
+                // Categories - Scrollable
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 4) {
                         ForEach(event.categories, id: \.self) { category in
                             Text(category)
-                                .font(.caption)
+                                .font(.caption2)
                                 .fontWeight(.medium)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
                                 .background(
                                     Capsule()
                                         .fill(Color.blue.opacity(0.1))
@@ -50,78 +116,35 @@ struct EventCardView: View {
                                 .foregroundColor(.blue)
                         }
                     }
-                    .padding(.horizontal, 16)
                 }
                 
-                // Title
-                Text(event.title)
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .lineLimit(2)
-                    .padding(.horizontal, 16)
-                
-                // Date & Location
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Image(systemName: "calendar")
-                            .foregroundColor(.secondary)
-                            .font(.caption)
-                        
-                        Text(formatDate(event.startDate))
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    HStack {
-                        Image(systemName: "location")
-                            .foregroundColor(.secondary)
-                            .font(.caption)
-                        
-                        Text(event.location.name)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                    }
-                }
-                .padding(.horizontal, 16)
-                
-                // Organizer & Price
+                // Price - Ayrı Satır
                 HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Organizatör")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        Text(event.organizer.name)
-                            .font(.caption)
-                            .fontWeight(.medium)
-                    }
-                    
                     Spacer()
-                    
-                    // Price
                     if event.pricing.price > 0 {
                         Text("\(Int(event.pricing.price)) \(event.pricing.currency)")
-                            .font(.headline)
+                            .font(.subheadline)
                             .fontWeight(.bold)
                             .foregroundColor(.primary)
                     } else {
                         Text("Ücretsiz")
-                            .font(.headline)
+                            .font(.subheadline)
                             .fontWeight(.bold)
                             .foregroundColor(.green)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
             }
+            .padding(.leading, 14)
+            .padding(.trailing, 14)
+            .padding(.vertical, 6)
         }
+        .frame(height: 150)
         .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.gray.opacity(0.2), lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
         )
         .onTapGesture {
             router.push(.eventDetail(event))
