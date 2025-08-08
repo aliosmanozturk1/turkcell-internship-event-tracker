@@ -57,44 +57,64 @@ enum ViewOption: String, CaseIterable {
 @MainActor
 final class EventViewModel: ObservableObject {
     @Published var events: [CreateEventModel] = []
+    @Published var filteredEvents: [CreateEventModel] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
     
     @Published var selectedSortOption: SortOption = .dateDescending {
-        didSet { applySorting() }
+        didSet { applyFiltersAndSorting() }
     }
     @Published var selectedViewOption: ViewOption = .list
+    @Published var activeFilter = EventFilter() {
+        didSet { applyFiltersAndSorting() }
+    }
+    
+    private var allEvents: [CreateEventModel] = []
 
     func loadEvents() async {
         isLoading = true
         errorMessage = nil
         do {
-            events = try await EventService.shared.fetchEvents()
-            applySorting()
+            allEvents = try await EventService.shared.fetchEvents()
+            events = allEvents
+            applyFiltersAndSorting()
         } catch {
             errorMessage = error.localizedDescription
         }
         isLoading = false
     }
     
+    private func applyFiltersAndSorting() {
+        // First apply filters
+        filteredEvents = allEvents.filter { event in
+            activeFilter.matches(event: event)
+        }
+        
+        // Then apply sorting
+        applySorting()
+    }
+    
     private func applySorting() {
         switch selectedSortOption {
         case .dateAscending:
-            events = events.sorted { $0.startDate < $1.startDate }
+            filteredEvents = filteredEvents.sorted { $0.startDate < $1.startDate }
         case .dateDescending:
-            events = events.sorted { $0.startDate > $1.startDate }
+            filteredEvents = filteredEvents.sorted { $0.startDate > $1.startDate }
         case .titleAscending:
-            events = events.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+            filteredEvents = filteredEvents.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
         case .titleDescending:
-            events = events.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedDescending }
+            filteredEvents = filteredEvents.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedDescending }
         case .priceAscending:
-            events = events.sorted { $0.pricing.price < $1.pricing.price }
+            filteredEvents = filteredEvents.sorted { $0.pricing.price < $1.pricing.price }
         case .priceDescending:
-            events = events.sorted { $0.pricing.price > $1.pricing.price }
+            filteredEvents = filteredEvents.sorted { $0.pricing.price > $1.pricing.price }
         case .participantsAscending:
-            events = events.sorted { $0.participants.currentParticipants < $1.participants.currentParticipants }
+            filteredEvents = filteredEvents.sorted { $0.participants.currentParticipants < $1.participants.currentParticipants }
         case .participantsDescending:
-            events = events.sorted { $0.participants.currentParticipants > $1.participants.currentParticipants }
+            filteredEvents = filteredEvents.sorted { $0.participants.currentParticipants > $1.participants.currentParticipants }
         }
+        
+        // Update the events array that the UI uses
+        events = filteredEvents
     }
 }
