@@ -11,12 +11,14 @@ import Combine
 struct EventView: View {
     @StateObject private var viewModel = EventViewModel()
     @State private var showingSortSheet = false
+    @State private var showingFilterSheet = false
 
     var body: some View {
         VStack(spacing: 0) {
             EventControlsHeader(
                 viewModel: viewModel,
-                showingSortSheet: $showingSortSheet
+                showingSortSheet: $showingSortSheet,
+                showingFilterSheet: $showingFilterSheet
             )
             
             if viewModel.isLoading {
@@ -40,17 +42,24 @@ struct EventView: View {
         .sheet(isPresented: $showingSortSheet) {
             EventSortSheet(viewModel: viewModel)
         }
+        .sheet(isPresented: $showingFilterSheet) {
+            FilterSelectionView(activeFilter: $viewModel.activeFilter)
+        }
     }
 }
 
 struct EventControlsHeader: View {
     @ObservedObject var viewModel: EventViewModel
     @Binding var showingSortSheet: Bool
+    @Binding var showingFilterSheet: Bool
     
     var body: some View {
         VStack(spacing: 12) {
             HStack(spacing: 12) {
-                FilterButton()
+                FilterButton(
+                    activeFilterCount: viewModel.activeFilter.activeFilterCount,
+                    action: { showingFilterSheet = true }
+                )
                 
                 SortButton(
                     currentSort: viewModel.selectedSortOption,
@@ -73,24 +82,32 @@ struct EventControlsHeader: View {
 }
 
 struct FilterButton: View {
+    let activeFilterCount: Int
+    let action: () -> Void
+    
     var body: some View {
-        Button(action: {
-            // Filter butonu - şimdilik sadece görünüm
-        }) {
+        Button(action: action) {
             HStack(spacing: 6) {
-                Image(systemName: "line.3.horizontal.decrease.circle")
-                    .foregroundColor(.blue)
+                Image(systemName: activeFilterCount > 0 ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                    .foregroundColor(activeFilterCount > 0 ? .white : .blue)
                 
-                Text("Filter")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(.blue)
+                if activeFilterCount > 0 {
+                    Text("Filter (\(activeFilterCount))")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white)
+                } else {
+                    Text("Filter")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.blue)
+                }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
             .background(
                 Capsule()
-                    .fill(Color.blue.opacity(0.1))
+                    .fill(activeFilterCount > 0 ? Color.blue : Color.blue.opacity(0.1))
             )
         }
         .buttonStyle(ScaleButtonStyle())
