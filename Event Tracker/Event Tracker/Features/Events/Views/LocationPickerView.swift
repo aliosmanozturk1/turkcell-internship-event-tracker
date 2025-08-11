@@ -11,24 +11,22 @@ struct LocationPickerView: View {
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
     @State private var searchQuery = ""
-    @State private var searchResults: [MKMapItem] = []
+    @StateObject private var searchCompleter = SearchCompleter()
 
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
                 searchBar
 
-                if !searchResults.isEmpty {
-                    List(searchResults, id: \.self) { item in
+                if !searchCompleter.results.isEmpty {
+                    List(searchCompleter.results, id: \.self) { completion in
                         Button {
-                            setRegion(to: item)
-                            searchResults.removeAll()
-                            searchQuery = item.name ?? ""
+                            selectCompletion(completion)
                         } label: {
                             VStack(alignment: .leading) {
-                                Text(item.name ?? "")
-                                if let subtitle = item.placemark.title {
-                                    Text(subtitle)
+                                Text(completion.title)
+                                if !completion.subtitle.isEmpty {
+                                    Text(completion.subtitle)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
@@ -67,6 +65,9 @@ struct LocationPickerView: View {
         HStack {
             TextField("Konum ara", text: $searchQuery, onCommit: performSearch)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
+                .onChange(of: searchQuery) { newValue in
+                    searchCompleter.update(query: newValue)
+                }
             Button(action: performSearch) {
                 Image(systemName: "magnifyingglass")
             }
@@ -80,8 +81,23 @@ struct LocationPickerView: View {
         request.naturalLanguageQuery = searchQuery
         let search = MKLocalSearch(request: request)
         search.start { response, _ in
-            searchResults = response?.mapItems ?? []
+            if let item = response?.mapItems.first {
+                setRegion(to: item)
+            }
         }
+        searchCompleter.results.removeAll()
+    }
+
+    private func selectCompletion(_ completion: MKLocalSearchCompletion) {
+        let request = MKLocalSearch.Request(completion: completion)
+        let search = MKLocalSearch(request: request)
+        search.start { response, _ in
+            if let item = response?.mapItems.first {
+                setRegion(to: item)
+                searchQuery = item.name ?? completion.title
+            }
+        }
+        searchCompleter.results.removeAll()
     }
 
     private func setRegion(to item: MKMapItem) {
@@ -91,5 +107,23 @@ struct LocationPickerView: View {
                 span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
             )
         }
+    }
+}
+
+final class SearchCompleter: NSObject, ObservableObject, MKLocalSearchCompleterDelegate {
+    @Published var results: [MKLocalSearchCompletion] = []
+    private let completer = MKLocalSearchCompleter()
+
+    override init() {
+        super.init()
+        completer.delegate = self
+    }
+
+    func update(query: String) {
+        completer.queryFragment = query
+    }
+
+    func completer(_ completer: MKLocalSearchCompleter, didUpdateResults results: [MKLocalSearchCompletion]) {
+        self.results = results
     }
 }
