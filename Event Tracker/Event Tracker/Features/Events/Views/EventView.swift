@@ -236,6 +236,7 @@ struct EmptyEventsView: View {
 
 struct CompactEventView: View {
     let event: CreateEventModel
+    @EnvironmentObject private var router: Router
     
     var body: some View {
         HStack(spacing: 12) {
@@ -292,6 +293,9 @@ struct CompactEventView: View {
         .padding(.vertical, 5)
         .background(Color(.systemGray6))
         .cornerRadius(12)
+        .onTapGesture {
+            router.push(.eventDetail(event))
+        }
     }
 }
 
