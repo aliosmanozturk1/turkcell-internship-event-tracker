@@ -5,6 +5,7 @@ struct CreateEventView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = CreateEventViewModel()
     @State private var isLoading = false
+    @State private var showLocationPicker = false
     
     var body: some View {
         NavigationView {
@@ -133,14 +134,34 @@ struct CreateEventView: View {
                     ModernTextField("Şehir", text: $viewModel.locationCity)
                     ModernTextField("İlçe", text: $viewModel.locationDistrict)
                 }
-                
-                HStack(spacing: 12) {
-                    ModernTextField("Enlem", text: $viewModel.locationLatitude)
-                        .keyboardType(.decimalPad)
-                    ModernTextField("Boylam", text: $viewModel.locationLongitude)
-                        .keyboardType(.decimalPad)
+
+                Button {
+                    showLocationPicker = true
+                } label: {
+                    HStack {
+                        Image(systemName: "mappin.and.ellipse")
+                        if viewModel.locationLatitude.isEmpty || viewModel.locationLongitude.isEmpty {
+                            Text("Haritadan Konum Seç")
+                                .foregroundColor(.blue)
+                        } else {
+                            VStack(alignment: .leading) {
+                                Text("Seçilen Konum")
+                                Text("\(viewModel.locationLatitude), \(viewModel.locationLongitude)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
+        }
+        .sheet(isPresented: $showLocationPicker) {
+            LocationPickerView(
+                latitude: $viewModel.locationLatitude,
+                longitude: $viewModel.locationLongitude
+            )
         }
     }
     
