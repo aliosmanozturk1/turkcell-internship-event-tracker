@@ -1,5 +1,5 @@
-import SwiftUI
 import MapKit
+import SwiftUI
 
 struct EventDetailView: View {
     @StateObject private var viewModel: EventDetailViewModel
@@ -23,30 +23,39 @@ struct EventDetailView: View {
             ScrollView {
                 LazyVStack(spacing: 32) {
                     // MARK: - Photo Gallery
+
                     photoGallerySection
                     
                     // MARK: - Basic Info
+
                     basicInfoSection
                     
                     // MARK: - Date & Time
+
                     dateTimeSection
                     
                     // MARK: - Location
+
                     locationSection
                     
                     // MARK: - Participants
+
                     participantsSection
                     
                     // MARK: - Age & Requirements
+
                     requirementsSection
                     
                     // MARK: - Organizer Info
+
                     organizerSection
                     
                     // MARK: - Pricing
+
                     pricingSection
                     
                     // MARK: - Additional Info
+
                     additionalInfoSection
                     
                     Spacer(minLength: 20)
@@ -80,7 +89,7 @@ struct EventDetailView: View {
             }
         }
         .alert("Takvim", isPresented: $viewModel.showingCalendarAlert) {
-            Button("Tamam", role: .cancel) { }
+            Button("Tamam", role: .cancel) {}
         } message: {
             Text(viewModel.calendarAlertMessage)
         }
@@ -117,6 +126,7 @@ struct EventDetailView: View {
     }
     
     // MARK: - Photo Gallery Section
+
     private var photoGallerySection: some View {
         FormSectionCard(title: "Event Fotoğrafları", icon: "photo.on.rectangle") {
             if !viewModel.event.images.isEmpty {
@@ -162,6 +172,7 @@ struct EventDetailView: View {
     }
     
     // MARK: - Basic Info Section
+
     private var basicInfoSection: some View {
         FormSectionCard(title: "Event Bilgileri", icon: "info.circle") {
             VStack(alignment: .leading, spacing: 16) {
@@ -228,6 +239,7 @@ struct EventDetailView: View {
     }
     
     // MARK: - Date & Time Section
+
     private var dateTimeSection: some View {
         FormSectionCard(title: "Tarih ve Saat", icon: "calendar") {
             VStack(spacing: 16) {
@@ -245,6 +257,7 @@ struct EventDetailView: View {
     }
     
     // MARK: - Location Section
+
     private var locationSection: some View {
         FormSectionCard(title: "Konum Bilgileri", icon: "location") {
             VStack(spacing: 16) {
@@ -263,6 +276,7 @@ struct EventDetailView: View {
     }
     
     // MARK: - Participants Section
+
     private var participantsSection: some View {
         FormSectionCard(title: "Katılımcı Bilgileri", icon: "person.3") {
             VStack(spacing: 16) {
@@ -302,6 +316,7 @@ struct EventDetailView: View {
     }
     
     // MARK: - Requirements Section
+
     private var requirementsSection: some View {
         FormSectionCard(title: "Yaş ve Gereksinimler", icon: "person.badge.shield.checkmark") {
             VStack(spacing: 16) {
@@ -317,6 +332,7 @@ struct EventDetailView: View {
     }
     
     // MARK: - Organizer Section
+
     private var organizerSection: some View {
         FormSectionCard(title: "Organizatör Bilgileri", icon: "person.crop.circle.badge.checkmark") {
             VStack(spacing: 16) {
@@ -378,6 +394,7 @@ struct EventDetailView: View {
     }
     
     // MARK: - Pricing Section
+
     private var pricingSection: some View {
         FormSectionCard(title: "Fiyatlandırma", icon: "creditcard") {
             HStack {
@@ -397,6 +414,7 @@ struct EventDetailView: View {
     }
     
     // MARK: - Additional Info Section
+
     private var additionalInfoSection: some View {
         FormSectionCard(title: "Ek Bilgiler", icon: "ellipsis.circle") {
             VStack(spacing: 16) {
@@ -418,6 +436,7 @@ struct EventDetailView: View {
     }
     
     // MARK: - Helper Views
+
     private struct DetailRow: View {
         let title: String
         let value: String
@@ -459,6 +478,7 @@ struct EventDetailView: View {
     }
     
     // MARK: - Map Display View
+
     private var mapDisplayView: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Konum")
@@ -470,7 +490,8 @@ struct EventDetailView: View {
                 ZStack {
                     if let lat = Double(viewModel.event.location.latitude),
                        let lon = Double(viewModel.event.location.longitude),
-                       isValidCoordinate(latitude: lat, longitude: lon) {
+                       isValidCoordinate(latitude: lat, longitude: lon)
+                    {
                         let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
                         let region = MKCoordinateRegion(
                             center: coordinate,
@@ -478,8 +499,9 @@ struct EventDetailView: View {
                             longitudinalMeters: 1000
                         )
                         
-                        Map(coordinateRegion: .constant(region), 
-                            annotationItems: [MapAnnotation(coordinate: coordinate)]) { annotation in
+                        Map(coordinateRegion: .constant(region),
+                            annotationItems: [MapAnnotation(coordinate: coordinate)])
+                        { annotation in
                             MapPin(coordinate: annotation.coordinate, tint: .red)
                         }
                         .frame(height: 120)
@@ -513,11 +535,13 @@ struct EventDetailView: View {
     }
     
     // MARK: - Coordinate Validation
+
     private func isValidCoordinate(latitude: Double, longitude: Double) -> Bool {
         return latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180
     }
     
     // MARK: - Map Functions
+
     private func openInAppleMaps() {
         guard let lat = Double(viewModel.event.location.latitude),
               let lon = Double(viewModel.event.location.longitude),
@@ -550,16 +574,17 @@ struct EventDetailView: View {
             }
         }
     }
-    
 }
 
 // MARK: - Map Annotation Helper
+
 private struct MapAnnotation: Identifiable {
     let id = UUID()
     let coordinate: CLLocationCoordinate2D
 }
 
 // MARK: - Preview
+
 #Preview {
     let sampleEvent = CreateEventModel(
         title: "iOS Developer Meetup - SwiftUI ile Modern Uygulama Geliştirme",
