@@ -1,8 +1,10 @@
 import SwiftUI
+import MapKit
 
 struct EventDetailView: View {
     @StateObject private var viewModel: EventDetailViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var showingMapOptions = false
     
     init(event: CreateEventModel) {
         self._viewModel = StateObject(wrappedValue: EventDetailViewModel(event: event))
@@ -90,6 +92,36 @@ struct EventDetailView: View {
             Button("Tamam", role: .cancel) { }
         } message: {
             Text(viewModel.calendarAlertMessage)
+        }
+        .sheet(isPresented: $showingMapOptions) {
+            VStack(spacing: 0) {
+                Button(action: {
+                    showingMapOptions = false
+                    openInAppleMaps()
+                }) {
+                    HStack {
+                        Text("Apple Haritalar")
+                        Spacer()
+                    }
+                    .padding()
+                }
+                .foregroundColor(.primary)
+                
+                Divider()
+                
+                Button(action: {
+                    showingMapOptions = false
+                    openInGoogleMaps()
+                }) {
+                    HStack {
+                        Text("Google Maps")
+                        Spacer()
+                    }
+                    .padding()
+                }
+                .foregroundColor(.primary)
+            }
+            .presentationDetents([.height(150)])
         }
     }
     
@@ -228,25 +260,8 @@ struct EventDetailView: View {
                 }
                 
                 if !viewModel.event.location.latitude.isEmpty && !viewModel.event.location.longitude.isEmpty {
-                    HStack {
-                        Text("Koordinatlar")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .fontWeight(.medium)
-                        
-                        Spacer()
-                        
-                        Button(action: { viewModel.openMaps() }) {
-                            HStack(spacing: 4) {
-                                Image(systemName: "map")
-                                    .font(.caption)
-                                Text("Haritada Aç")
-                                    .font(.caption)
-                                    .fontWeight(.medium)
-                            }
-                            .foregroundColor(.blue)
-                        }
-                    }
+                    // Small Map View
+                    mapDisplayView
                 }
             }
         }
@@ -448,6 +463,105 @@ struct EventDetailView: View {
         }
     }
     
+    // MARK: - Map Display View
+    private var mapDisplayView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Konum")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .fontWeight(.medium)
+            
+            Button(action: { showingMapOptions = true }) {
+                ZStack {
+                    if let lat = Double(viewModel.event.location.latitude),
+                       let lon = Double(viewModel.event.location.longitude),
+                       isValidCoordinate(latitude: lat, longitude: lon) {
+                        let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+                        let region = MKCoordinateRegion(
+                            center: coordinate,
+                            latitudinalMeters: 1000,
+                            longitudinalMeters: 1000
+                        )
+                        
+                        Map(coordinateRegion: .constant(region), 
+                            annotationItems: [MapAnnotation(coordinate: coordinate)]) { annotation in
+                            MapPin(coordinate: annotation.coordinate, tint: .red)
+                        }
+                        .frame(height: 120)
+                        .cornerRadius(12)
+                        .disabled(true)
+                        
+                        // Overlay to make the map tappable
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.clear)
+                            .contentShape(Rectangle())
+                    } else {
+                        // Fallback view when coordinates are invalid
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.gray.opacity(0.1))
+                            .frame(height: 120)
+                            .overlay(
+                                VStack(spacing: 8) {
+                                    Image(systemName: "map")
+                                        .font(.title2)
+                                        .foregroundColor(.gray)
+                                    Text("Konum bilgisi mevcut değil")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                            )
+                    }
+                }
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
+    }
+    
+    // MARK: - Coordinate Validation
+    private func isValidCoordinate(latitude: Double, longitude: Double) -> Bool {
+        return latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180
+    }
+    
+    // MARK: - Map Functions
+    private func openInAppleMaps() {
+        guard let lat = Double(viewModel.event.location.latitude),
+              let lon = Double(viewModel.event.location.longitude),
+              isValidCoordinate(latitude: lat, longitude: lon) else { return }
+        
+        let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+        let placemark = MKPlacemark(coordinate: coordinate)
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = viewModel.event.location.name
+        
+        mapItem.openInMaps(launchOptions: [
+            MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving
+        ])
+    }
+    
+    private func openInGoogleMaps() {
+        guard let lat = Double(viewModel.event.location.latitude),
+              let lon = Double(viewModel.event.location.longitude),
+              isValidCoordinate(latitude: lat, longitude: lon) else { return }
+        
+        let urlString = "comgooglemaps://?q=\(lat),\(lon)&zoom=14"
+        
+        if let url = URL(string: urlString), UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url)
+        } else {
+            // Fallback to web version
+            let webUrlString = "https://maps.google.com/?q=\(lat),\(lon)"
+            if let webUrl = URL(string: webUrlString) {
+                UIApplication.shared.open(webUrl)
+            }
+        }
+    }
+    
+}
+
+// MARK: - Map Annotation Helper
+private struct MapAnnotation: Identifiable {
+    let id = UUID()
+    let coordinate: CLLocationCoordinate2D
 }
 
 // MARK: - Preview
