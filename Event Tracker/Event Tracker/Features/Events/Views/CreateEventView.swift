@@ -1,10 +1,11 @@
-import SwiftUI
 import Combine
+import SwiftUI
 
 struct CreateEventView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = CreateEventViewModel()
     @State private var isLoading = false
+    @State private var showLocationPicker = false
     
     var body: some View {
         NavigationView {
@@ -46,7 +47,6 @@ struct CreateEventView: View {
                         // MARK: - Additional Info
                         additionalInfoSection
                         
-                        
                         Spacer(minLength: 20)
                     }
                     .padding(.horizontal, 20)
@@ -87,6 +87,7 @@ struct CreateEventView: View {
     }
     
     // MARK: - Photo Section
+
     private var photoSection: some View {
         FormSectionCard(title: "Event Fotoğrafları", isRequired: true, icon: "photo.on.rectangle") {
             PhotoUploadView(images: $viewModel.selectedImages)
@@ -94,6 +95,7 @@ struct CreateEventView: View {
     }
     
     // MARK: - Basic Info Section
+
     private var basicInfoSection: some View {
         FormSectionCard(title: "Temel Bilgiler", icon: "info.circle") {
             VStack(spacing: 20) {
@@ -103,12 +105,13 @@ struct CreateEventView: View {
                 
                 CategorySelector(selectedCategories: $viewModel.selectedCategories)
                 
-                ModernTextEditor("Ne Beklemeli?", text: $viewModel.whatToExpected, isRequired: false ,height: 80)
+                ModernTextEditor("Ne Beklemeli?", text: $viewModel.whatToExpected, isRequired: false, height: 80)
             }
         }
     }
     
     // MARK: - Date & Time Section
+
     private var dateTimeSection: some View {
         FormSectionCard(title: "Tarih ve Saat", icon: "calendar") {
             VStack(spacing: 20) {
@@ -122,6 +125,7 @@ struct CreateEventView: View {
     }
     
     // MARK: - Location Section
+
     private var locationSection: some View {
         FormSectionCard(title: "Konum Bilgileri", icon: "location") {
             VStack(spacing: 20) {
@@ -134,17 +138,38 @@ struct CreateEventView: View {
                     ModernTextField("İlçe", text: $viewModel.locationDistrict)
                 }
                 
-                HStack(spacing: 12) {
-                    ModernTextField("Enlem", text: $viewModel.locationLatitude)
-                        .keyboardType(.decimalPad)
-                    ModernTextField("Boylam", text: $viewModel.locationLongitude)
-                        .keyboardType(.decimalPad)
+                Button {
+                    showLocationPicker = true
+                } label: {
+                    HStack {
+                        Image(systemName: "mappin.and.ellipse")
+                        if viewModel.locationLatitude.isEmpty || viewModel.locationLongitude.isEmpty {
+                            Text("Haritadan Konum Seç")
+                                .foregroundColor(.blue)
+                        } else {
+                            VStack(alignment: .leading) {
+                                Text("Seçilen Konum")
+                                Text("\(viewModel.locationLatitude), \(viewModel.locationLongitude)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
+        }
+        .sheet(isPresented: $showLocationPicker) {
+            LocationPickerView(
+                latitude: $viewModel.locationLatitude,
+                longitude: $viewModel.locationLongitude
+            )
         }
     }
     
     // MARK: - Participants Section
+
     private var participantsSection: some View {
         FormSectionCard(title: "Katılımcı Bilgileri", icon: "person.3") {
             VStack(spacing: 20) {
@@ -161,6 +186,7 @@ struct CreateEventView: View {
     }
     
     // MARK: - Requirements Section
+
     private var requirementsSection: some View {
         FormSectionCard(title: "Yaş ve Gereksinimler", icon: "person.badge.shield.checkmark") {
             VStack(spacing: 20) {
@@ -177,12 +203,13 @@ struct CreateEventView: View {
                     ("ar", "العربية")
                 ])
                 
-                ModernTextEditor("Gereksinimler", text: $viewModel.requirements,isRequired: false, height: 80)
+                ModernTextEditor("Gereksinimler", text: $viewModel.requirements, isRequired: false, height: 80)
             }
         }
     }
     
     // MARK: - Organizer Section
+
     private var organizerSection: some View {
         FormSectionCard(title: "Organizatör Bilgileri", icon: "person.crop.circle.badge.checkmark") {
             VStack(spacing: 20) {
@@ -198,6 +225,7 @@ struct CreateEventView: View {
     }
     
     // MARK: - Pricing Section
+
     private var pricingSection: some View {
         FormSectionCard(title: "Fiyatlandırma", icon: "creditcard") {
             HStack(spacing: 12) {
@@ -215,6 +243,7 @@ struct CreateEventView: View {
     }
     
     // MARK: - Additional Info Section
+
     private var additionalInfoSection: some View {
         FormSectionCard(title: "Ek Bilgiler", icon: "ellipsis.circle") {
             VStack(spacing: 20) {
@@ -224,15 +253,14 @@ struct CreateEventView: View {
                     ("cancelled", "İptal")
                 ])
                 
-                
                 ModernTextField("Sosyal Medya Linkleri", text: $viewModel.socialLinks)
                 ModernTextField("İletişim Bilgileri", text: $viewModel.contactInfo)
             }
         }
     }
     
-    
     // MARK: - Helper Functions
+
     private func saveEvent() {
         isLoading = true
         Task {
@@ -246,15 +274,16 @@ struct CreateEventView: View {
     
     private func isFormValid() -> Bool {
         !viewModel.title.isEmpty &&
-        !viewModel.locationName.isEmpty &&
-        !viewModel.organizerName.isEmpty &&
-        !viewModel.selectedCategories.isEmpty &&
-        !viewModel.selectedImages.isEmpty &&
-        !viewModel.price.isEmpty
+            !viewModel.locationName.isEmpty &&
+            !viewModel.organizerName.isEmpty &&
+            !viewModel.selectedCategories.isEmpty &&
+            !viewModel.selectedImages.isEmpty &&
+            !viewModel.price.isEmpty
     }
 }
 
 // MARK: - Preview
+
 #Preview {
     CreateEventView()
 }
