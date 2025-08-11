@@ -72,7 +72,7 @@ struct CreateEventView: View {
                                     .fontWeight(.semibold)
                             }
                         }
-                        .foregroundColor(isFormValid() ? .white : .gray)
+                        .foregroundColor(isFormValid() ? .blue : .gray)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                     }
