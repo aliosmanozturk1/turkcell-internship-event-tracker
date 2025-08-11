@@ -188,7 +188,7 @@ struct EventContentView: View {
             case .list:
                 LazyVStack(spacing: 16) {
                     ForEach(viewModel.events) { event in
-                        EventCardView(event: event)
+                        ListCardView(event: event)
                     }
                 }
                 .padding()
@@ -196,7 +196,7 @@ struct EventContentView: View {
             case .grid:
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
                     ForEach(viewModel.events) { event in
-                        EventCardView(event: event)
+                        GridCardView(event: event)
                     }
                 }
                 .padding()
