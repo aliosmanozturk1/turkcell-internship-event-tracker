@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import CoreLocation
 
 struct LocationPickerView: View {
     @Environment(\.dismiss) private var dismiss
@@ -19,35 +20,53 @@ struct LocationPickerView: View {
     )
     @State private var searchQuery = ""
     @State private var searchResults: [MKMapItem] = []
+    @State private var showSearchResults = false
+    @State private var locationManager = CLLocationManager()
 
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
                 searchBar
 
-                if !searchResults.isEmpty {
-                    List(searchResults, id: \.self) { item in
-                        Button {
-                            setRegion(to: item)
-                            searchResults.removeAll()
-                            searchQuery = item.name ?? ""
-                        } label: {
-                            VStack(alignment: .leading) {
-                                Text(item.name ?? "")
-                                if let subtitle = item.placemark.title {
-                                    Text(subtitle)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+                if showSearchResults && !searchResults.isEmpty {
+                    VStack(spacing: 0) {
+                        HStack {
+                            Spacer()
+                            Button("Kapat") {
+                                showSearchResults = false
+                                searchResults.removeAll()
+                            }
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                            .padding(.trailing)
+                            .padding(.top, 8)
+                        }
+                        
+                        List(searchResults, id: \.self) { item in
+                            Button {
+                                setRegion(to: item)
+                                showSearchResults = false
+                                searchResults.removeAll()
+                                searchQuery = item.name ?? ""
+                            } label: {
+                                VStack(alignment: .leading) {
+                                    Text(item.name ?? "")
+                                    if let subtitle = item.placemark.title {
+                                        Text(subtitle)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
                             }
                         }
+                        .listStyle(PlainListStyle())
                     }
-                    .listStyle(PlainListStyle())
                 }
 
                 ZStack {
-                    Map(coordinateRegion: $region, showsUserLocation: true)
+                    Map(coordinateRegion: $region, showsUserLocation: true, userTrackingMode: .constant(.none))
                         .ignoresSafeArea()
+                    
                     Image(systemName: "mappin.circle.fill")
                         .font(.title)
                         .foregroundColor(.red)
@@ -67,6 +86,20 @@ struct LocationPickerView: View {
                     Button("İptal") { dismiss() }
                 }
             }
+            .onAppear {
+                locationManager.requestWhenInUseAuthorization()
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    if let userLocation = locationManager.location {
+                        withAnimation {
+                            region = MKCoordinateRegion(
+                                center: userLocation.coordinate,
+                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -83,11 +116,18 @@ struct LocationPickerView: View {
     }
 
     private func performSearch() {
+        guard !searchQuery.isEmpty else {
+            showSearchResults = false
+            searchResults.removeAll()
+            return
+        }
+        
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = searchQuery
         let search = MKLocalSearch(request: request)
         search.start { response, _ in
             searchResults = response?.mapItems ?? []
+            showSearchResults = !searchResults.isEmpty
         }
     }
 
