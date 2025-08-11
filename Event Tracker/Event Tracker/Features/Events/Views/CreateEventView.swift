@@ -58,13 +58,6 @@ struct CreateEventView: View {
             .navigationTitle("Yeni Event")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("İptal") {
-                        dismiss()
-                    }
-                    .foregroundColor(.secondary)
-                }
-                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         saveEvent()

@@ -11,80 +11,71 @@ struct EventDetailView: View {
     }
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                // Background gradient
-                LinearGradient(
-                    gradient: Gradient(colors: [Color(.systemBackground), Color(.systemGray6)]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
-                
-                ScrollView {
-                    LazyVStack(spacing: 32) {
-                        // MARK: - Photo Gallery
-                        photoGallerySection
-                        
-                        // MARK: - Basic Info
-                        basicInfoSection
-                        
-                        // MARK: - Date & Time
-                        dateTimeSection
-                        
-                        // MARK: - Location
-                        locationSection
-                        
-                        // MARK: - Participants
-                        participantsSection
-                        
-                        // MARK: - Age & Requirements
-                        requirementsSection
-                        
-                        // MARK: - Organizer Info
-                        organizerSection
-                        
-                        // MARK: - Pricing
-                        pricingSection
-                        
-                        // MARK: - Additional Info
-                        additionalInfoSection
-                        
-                        Spacer(minLength: 20)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 8)
+        ZStack {
+            // Background gradient
+            LinearGradient(
+                gradient: Gradient(colors: [Color(.systemBackground), Color(.systemGray6)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+            
+            ScrollView {
+                LazyVStack(spacing: 32) {
+                    // MARK: - Photo Gallery
+                    photoGallerySection
+                    
+                    // MARK: - Basic Info
+                    basicInfoSection
+                    
+                    // MARK: - Date & Time
+                    dateTimeSection
+                    
+                    // MARK: - Location
+                    locationSection
+                    
+                    // MARK: - Participants
+                    participantsSection
+                    
+                    // MARK: - Age & Requirements
+                    requirementsSection
+                    
+                    // MARK: - Organizer Info
+                    organizerSection
+                    
+                    // MARK: - Pricing
+                    pricingSection
+                    
+                    // MARK: - Additional Info
+                    additionalInfoSection
+                    
+                    Spacer(minLength: 20)
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
             }
-            .navigationTitle(viewModel.event.title)
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Kapat") {
-                        dismiss()
+        }
+        .navigationTitle(viewModel.event.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    ShareLink(item: viewModel.shareContent) {
+                        Label("Paylaş", systemImage: "square.and.arrow.up")
                     }
-                    .foregroundColor(.secondary)
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        ShareLink(item: viewModel.shareContent) {
-                            Label("Paylaş", systemImage: "square.and.arrow.up")
-                        }
-                        
-                        Button(action: { viewModel.addToCalendar() }) {
-                            Label("Takvime Ekle", systemImage: "calendar.badge.plus")
-                        }
-                        
-                        if !viewModel.event.organizer.website.isEmpty {
-                            Button(action: { viewModel.visitWebsite() }) {
-                                Label("Website", systemImage: "globe")
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                            .foregroundColor(.blue)
+                    
+                    Button(action: { viewModel.addToCalendar() }) {
+                        Label("Takvime Ekle", systemImage: "calendar.badge.plus")
                     }
+                    
+                    if !viewModel.event.organizer.website.isEmpty {
+                        Button(action: { viewModel.visitWebsite() }) {
+                            Label("Website", systemImage: "globe")
+                        }
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .foregroundColor(.blue)
                 }
             }
         }
@@ -174,6 +165,10 @@ struct EventDetailView: View {
     private var basicInfoSection: some View {
         FormSectionCard(title: "Event Bilgileri", icon: "info.circle") {
             VStack(alignment: .leading, spacing: 16) {
+                if !viewModel.event.title.isEmpty {
+                    DetailRow(title: "Başlık", value: viewModel.event.title, isMultiline: true)
+                }
+                
                 if !viewModel.event.description.isEmpty {
                     DetailRow(title: "Açıklama", value: viewModel.event.description, isMultiline: true)
                 }
