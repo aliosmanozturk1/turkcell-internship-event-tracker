@@ -204,7 +204,7 @@ struct EventContentView: View {
             case .compact:
                 LazyVStack(spacing: 8) {
                     ForEach(viewModel.events) { event in
-                        CompactEventView(event: event)
+                        CompactCardView(event: event)
                     }
                 }
                 .padding()
@@ -234,7 +234,7 @@ struct EmptyEventsView: View {
     }
 }
 
-struct CompactEventView: View {
+struct CompactCardView: View {
     let event: CreateEventModel
     @EnvironmentObject private var router: Router
     
