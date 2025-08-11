@@ -1,5 +1,5 @@
-import Foundation
 import FirebaseFirestore
+import Foundation
 
 final class EventService {
     static let shared = EventService()
@@ -10,8 +10,14 @@ final class EventService {
         firestore.collection("events")
     }
 
-    func createEvent(_ event: CreateEventModel) async throws {
-        try eventsCollection.addDocument(from: event)
+// func createEvent(_ event: CreateEventModel) async throws {
+//      try eventsCollection.addDocument(from: event)
+
+    func createEvent(_ event: CreateEventModel) async throws -> CreateEventModel {
+        let documentRef = try eventsCollection.addDocument(from: event)
+        var eventWithId = event
+        eventWithId.id = documentRef.documentID
+        return eventWithId
     }
 
     func fetchEvents() async throws -> [CreateEventModel] {

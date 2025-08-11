@@ -47,6 +47,7 @@ class CreateEventViewModel: ObservableObject {
     @Published var isSaving = false
     @Published var errorMessage: String?
     @Published var isEventCreated = false
+    @Published var createdEvent: CreateEventModel?
 
     func createEvent() async {
         guard let user = AuthService.shared.currentUser else {
@@ -122,7 +123,8 @@ class CreateEventViewModel: ObservableObject {
         )
 
         do {
-            try await EventService.shared.createEvent(event)
+            let savedEvent = try await EventService.shared.createEvent(event)
+            createdEvent = savedEvent
             isEventCreated = true
         } catch {
             errorMessage = error.localizedDescription
@@ -130,5 +132,43 @@ class CreateEventViewModel: ObservableObject {
         }
 
         isSaving = false
+    }
+    
+    func clearForm() {
+        title = ""
+        description = ""
+        selectedCategories = []
+        whatToExpected = ""
+        startDate = Date()
+        endDate = Date().addingTimeInterval(3600)
+        registrationDeadline = Date().addingTimeInterval(-86400)
+        locationName = ""
+        locationAddress1 = ""
+        locationAddress2 = ""
+        locationCity = ""
+        locationDistrict = ""
+        locationLatitude = ""
+        locationLongitude = ""
+        maxParticipants = ""
+        currentParticipants = "0"
+        showRemaining = true
+        minAge = ""
+        maxAge = ""
+        language = "tr"
+        requirements = ""
+        organizerName = ""
+        organizerEmail = ""
+        organizerPhone = ""
+        organizerWebsite = ""
+        price = "0"
+        currency = "TL"
+        status = "active"
+        socialLinks = ""
+        contactInfo = ""
+        selectedImages = []
+        
+        errorMessage = nil
+        isEventCreated = false
+        createdEvent = nil
     }
 }

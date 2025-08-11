@@ -4,6 +4,7 @@ import CoreLocation
 
 struct CreateEventView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var router: Router
     @StateObject private var viewModel = CreateEventViewModel()
     @State private var isLoading = false
     @State private var showLocationPicker = false
@@ -264,8 +265,9 @@ struct CreateEventView: View {
         Task {
             await viewModel.createEvent()
             isLoading = false
-            if viewModel.isEventCreated {
-                dismiss()
+            if viewModel.isEventCreated, let createdEvent = viewModel.createdEvent {
+                viewModel.clearForm()
+                router.push(.eventDetail(createdEvent))
             }
         }
     }
