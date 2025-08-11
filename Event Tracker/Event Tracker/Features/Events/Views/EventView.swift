@@ -260,37 +260,36 @@ struct CompactEventView: View {
                     .fontWeight(.semibold)
                     .lineLimit(1)
                 
-                Text(event.startDate, style: .date)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
                 HStack {
+                    
+                    Text(event.startDate, style: .date)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
                     Text(event.pricing.formattedPrice)
                         .font(.caption)
                         .fontWeight(.medium)
                         .foregroundColor(event.pricing.isFree ? .green : .blue)
+                        .padding(.trailing, 10)
                     
-                    Spacer()
-                    
-                    if !event.participants.isFull {
-                        Text("\(event.participants.remainingSpots) yer kaldı")
-                            .font(.caption)
-                            .foregroundColor(.orange)
-                    } else {
-                        Text("Dolu")
-                            .font(.caption)
-                            .foregroundColor(.red)
-                    }
+//                    if !event.participants.isFull {
+//                        Text("\(event.participants.remainingSpots) yer kaldı")
+//                            .font(.caption)
+//                            .foregroundColor(.orange)
+//                    } else {
+//                        Text("Dolu")
+//                            .font(.caption)
+//                            .foregroundColor(.red)
+//                    }
                 }
+                
             }
             
-            Spacer()
-            
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundColor(.secondary)
         }
-        .padding()
+        .padding(.horizontal, 5)
+        .padding(.vertical, 5)
         .background(Color(.systemGray6))
         .cornerRadius(12)
     }
