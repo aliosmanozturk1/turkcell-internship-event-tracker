@@ -1,5 +1,5 @@
 //
-//  EventCardView.swift
+//  ListCardView.swift
 //  Event Tracker
 //
 //  Created by Ali Osman Öztürk on 22.07.2025.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct EventCardView: View {
+struct ListCardView: View {
     let event: CreateEventModel
     @EnvironmentObject private var router: Router
     
@@ -160,7 +160,7 @@ struct EventCardView: View {
 }
 
 // Preview
-struct EventCardView_Previews: PreviewProvider {
+struct ListCardView_Previews: PreviewProvider {
     static var previews: some View {
         let sampleEvent = CreateEventModel(
             title: "iOS Developer Meetup - SwiftUI ile Modern Uygulama Geliştirme",
@@ -174,7 +174,7 @@ struct EventCardView_Previews: PreviewProvider {
         )
         
         VStack(spacing: 20) {
-            EventCardView(event: sampleEvent)
+            ListCardView(event: sampleEvent)
         }
         .padding()
         .previewLayout(.sizeThatFits)
