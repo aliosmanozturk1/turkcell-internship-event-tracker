@@ -170,6 +170,7 @@ struct LoginView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(Color(.systemBackground))
+                    .cornerRadius(12)
                     .foregroundStyle(Color.primary)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
