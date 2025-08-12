@@ -93,7 +93,7 @@ struct EventDetailView: View {
                 Button {
                     viewModel.addToCalendar()
                 } label: {
-                    HStack(spacing: 6) {
+                    HStack(alignment: .center, spacing: 6) {
                         Image(systemName: "calendar.badge.plus")
                         Text("Takvime Ekle")
                     }
@@ -110,16 +110,23 @@ struct EventDetailView: View {
                         }
                     }
                 } label: {
-                    HStack(spacing: 6) {
+                    ZStack {
                         if viewModel.isUpdatingJoin {
-                            ProgressView().scaleEffect(0.8)
+                            ProgressView()
+                                .progressViewStyle(.circular)
+                                .tint(.white)
+                        } else {
+                            HStack(alignment: .center) {
+                                Text(viewModel.isJoined ? "Vazgeç" : "Katıl")
+                                    .opacity(viewModel.isUpdatingJoin ? 0 : 1)
+                                Image(systemName: viewModel.isJoined ? "xmark.circle" : "checkmark.circle")
+                            }
                         }
-                        Text(viewModel.isJoined ? "Katılmaktan Vazgeç" : "Katıl")
                     }
-                    .frame(maxWidth: .infinity)
+                    //.frame(minWidth: 100)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(viewModel.isJoined ? .red : .blue)
+                // .buttonStyle(.borderedProminent)
+                // .tint(viewModel.isJoined ? .red : .blue)
                 .disabled(viewModel.isUpdatingJoin || viewModel.event.participants.isFull && !viewModel.isJoined)
             }
         }
