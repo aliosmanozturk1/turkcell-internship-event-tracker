@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import EventKit
+import FirebaseAuth
 
 @MainActor
 final class EventDetailViewModel: ObservableObject {
@@ -16,6 +17,8 @@ final class EventDetailViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var showingCalendarAlert = false
     @Published var calendarAlertMessage = ""
+    @Published var isJoined = false
+    @Published var isUpdatingJoin = false
     
     private let eventStore = EKEventStore()
     
@@ -209,5 +212,50 @@ final class EventDetailViewModel: ObservableObject {
         
         isLoading = false
     }
-    
+
+    // MARK: - Participation (Join/Leave)
+    func loadJoinState() async {
+        guard let eventId = event.id, let userId = AuthService.shared.currentUser?.uid else { return }
+        do {
+            isJoined = try await EventService.shared.isUserJoined(eventId: eventId, userId: userId)
+        } catch {
+            // Non-fatal: keep default false, but surface error if helpful
+            print("Failed to check join state: \(error.localizedDescription)")
+        }
+    }
+
+    func joinEvent() async {
+        guard !isUpdatingJoin else { return }
+        guard let eventId = event.id, let userId = AuthService.shared.currentUser?.uid else {
+            errorMessage = "Kullanıcı bulunamadı"
+            return
+        }
+        isUpdatingJoin = true
+        defer { isUpdatingJoin = false }
+        do {
+            let newCount = try await EventService.shared.joinEvent(eventId: eventId, userId: userId)
+            event.participants.currentParticipants = newCount
+            isJoined = true
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func leaveEvent() async {
+        guard !isUpdatingJoin else { return }
+        guard let eventId = event.id, let userId = AuthService.shared.currentUser?.uid else {
+            errorMessage = "Kullanıcı bulunamadı"
+            return
+        }
+        isUpdatingJoin = true
+        defer { isUpdatingJoin = false }
+        do {
+            let newCount = try await EventService.shared.leaveEvent(eventId: eventId, userId: userId)
+            event.participants.currentParticipants = newCount
+            isJoined = false
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
 }
