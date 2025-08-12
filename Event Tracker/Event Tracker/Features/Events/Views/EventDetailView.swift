@@ -87,6 +87,41 @@ struct EventDetailView: View {
                         .foregroundColor(.blue)
                 }
             }
+
+            // Bottom toolbar for primary actions
+            ToolbarItemGroup(placement: .bottomBar) {
+                Button {
+                    viewModel.addToCalendar()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "calendar.badge.plus")
+                        Text("Takvime Ekle")
+                    }
+                }
+
+                Spacer()
+
+                Button {
+                    Task {
+                        if viewModel.isJoined {
+                            await viewModel.leaveEvent()
+                        } else {
+                            await viewModel.joinEvent()
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        if viewModel.isUpdatingJoin {
+                            ProgressView().scaleEffect(0.8)
+                        }
+                        Text(viewModel.isJoined ? "Katılmaktan Vazgeç" : "Katıl")
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(viewModel.isJoined ? .red : .blue)
+                .disabled(viewModel.isUpdatingJoin || viewModel.event.participants.isFull && !viewModel.isJoined)
+            }
         }
         .alert("Takvim", isPresented: $viewModel.showingCalendarAlert) {
             Button("Tamam", role: .cancel) {}
@@ -122,6 +157,9 @@ struct EventDetailView: View {
                 .foregroundColor(.primary)
             }
             .presentationDetents([.height(150)])
+        }
+        .task {
+            await viewModel.loadJoinState()
         }
     }
     
