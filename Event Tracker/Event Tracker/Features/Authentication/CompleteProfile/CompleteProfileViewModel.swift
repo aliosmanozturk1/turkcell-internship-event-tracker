@@ -21,6 +21,20 @@ class CompleteProfileViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isProfileCompleted: Bool = false
 
+    func loadExistingProfile() async {
+        guard let user = AuthService.shared.currentUser else { return }
+        do {
+            if let profile = try await UserService.shared.fetchUser(uid: user.uid) {
+                // Prefill only if values exist
+                if let fn = profile.firstName { self.firstName = fn }
+                if let ln = profile.lastName { self.lastName = ln }
+            }
+        } catch {
+            // Non-fatal; leave fields empty for user to fill
+            print("Load profile error: \(error.localizedDescription)")
+        }
+    }
+
     func saveProfile() async {
         guard !firstName.isEmpty else {
             errorMessage = "First name cannot be empty."
