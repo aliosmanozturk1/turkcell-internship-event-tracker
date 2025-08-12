@@ -134,11 +134,10 @@ struct ProfileView: View {
             sessionManager.signOut()
         } label: {
             HStack {
-                Spacer()
                 Text("Çıkış Yap")
                     .fontWeight(.semibold)
-                Spacer()
             }
+            .padding(5)
         }
         .buttonStyle(.borderedProminent)
         .tint(.red)
