@@ -171,4 +171,37 @@ final class EventService {
         }
         return updatedCount
     }
+
+    // MARK: - User-specific event queries
+
+    func fetchEventsCreatedBy(userId: String) async throws -> [CreateEventModel] {
+        let snapshot = try await eventsCollection
+            .whereField("createdBy", isEqualTo: userId)
+            .getDocuments()
+        let events = snapshot.documents.compactMap { try? $0.data(as: CreateEventModel.self) }
+        return events
+    }
+
+    func fetchEvents(withIds ids: [String]) async throws -> [CreateEventModel] {
+        guard !ids.isEmpty else { return [] }
+        // Firestore 'in' supports up to 10 items; chunk if necessary
+        let chunks: [[String]] = stride(from: 0, to: ids.count, by: 10).map {
+            Array(ids[$0..<min($0 + 10, ids.count)])
+        }
+        var results: [CreateEventModel] = []
+        for chunk in chunks {
+            let snapshot = try await eventsCollection
+                .whereField(FieldPath.documentID(), in: chunk)
+                .getDocuments()
+            let items = snapshot.documents.compactMap { try? $0.data(as: CreateEventModel.self) }
+            results.append(contentsOf: items)
+        }
+        return results
+    }
+
+    func fetchJoinedEvents(for userId: String) async throws -> [CreateEventModel] {
+        let userDoc = try await usersCollection.document(userId).getDocument()
+        let joinedIds = (userDoc.data()? ["joinedEvents"] as? [String]) ?? []
+        return try await fetchEvents(withIds: joinedIds)
+    }
 }
