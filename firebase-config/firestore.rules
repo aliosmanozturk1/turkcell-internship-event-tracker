@@ -9,7 +9,7 @@ service cloud.firestore {
       allow read: if request.auth != null;
       
       // Only non-anonymous authenticated users can create events
-      allow create: if request.auth != null && !request.auth.token.firebase.sign_in_provider == 'anonymous';
+      allow create: if request.auth != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
       
       // Only the event creator can update or delete their events
       allow update, delete: if request.auth != null 
@@ -29,6 +29,12 @@ service cloud.firestore {
     match /categories/{categoryId} {
       allow read: if request.auth != null;
       allow write: if false; // Categories are managed by admins only
+    }
+    
+    // Groups collection - read-only for all authenticated users
+    match /groups/{groupId} {
+      allow read: if request.auth != null;
+      allow write: if false;
     }
     
     // Event participants subcollection
