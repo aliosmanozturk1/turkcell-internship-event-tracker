@@ -55,20 +55,6 @@ final class EventDetailViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Status Color
-    var statusColor: Color {
-        switch event.status {
-        case .active:
-            return .green
-        case .cancelled:
-            return .red
-        case .completed:
-            return .blue
-        case .draft:
-            return .orange
-        }
-    }
-    
     // MARK: - Share Functionality
     var shareContent: String {
         """

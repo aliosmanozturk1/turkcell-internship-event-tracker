@@ -246,12 +246,6 @@ struct CreateEventView: View {
     private var additionalInfoSection: some View {
         FormSectionCard(title: "Ek Bilgiler", icon: "ellipsis.circle") {
             VStack(spacing: 20) {
-                ModernPicker("Durum", selection: $viewModel.status, options: [
-                    ("active", "Aktif"),
-                    ("draft", "Taslak"),
-                    ("cancelled", "İptal")
-                ])
-                
                 ModernTextField("Sosyal Medya Linkleri", text: $viewModel.socialLinks)
                 ModernTextField("İletişim Bilgileri", text: $viewModel.contactInfo)
             }

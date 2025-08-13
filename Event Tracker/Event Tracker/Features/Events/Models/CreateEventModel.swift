@@ -24,7 +24,6 @@ struct CreateEventModel: Identifiable, Codable, Hashable {
     var requirements: String
     var organizer: EventOrganizer
     var pricing: EventPricing
-    var status: EventStatus
     var socialLinks: String
     var contactInfo: String
     var images: [EventImage]
@@ -47,7 +46,6 @@ struct CreateEventModel: Identifiable, Codable, Hashable {
         requirements: String = "",
         organizer: EventOrganizer = EventOrganizer(),
         pricing: EventPricing = EventPricing(),
-        status: EventStatus = .active,
         socialLinks: String = "",
         contactInfo: String = "",
         images: [EventImage] = [],
@@ -67,7 +65,6 @@ struct CreateEventModel: Identifiable, Codable, Hashable {
         self.requirements = requirements
         self.organizer = organizer
         self.pricing = pricing
-        self.status = status
         self.socialLinks = socialLinks
         self.contactInfo = contactInfo
         self.images = images
@@ -194,39 +191,6 @@ struct EventPricing: Codable, Hashable {
             return "Ücretsiz"
         } else {
             return String(format: "%.2f %@", price, currency)
-        }
-    }
-}
-
-enum EventStatus: String, Codable, CaseIterable {
-    case active = "active"
-    case cancelled = "cancelled"
-    case completed = "completed"
-    case draft = "draft"
-    
-    var displayName: String {
-        switch self {
-        case .active:
-            return "Aktif"
-        case .cancelled:
-            return "İptal Edildi"
-        case .completed:
-            return "Tamamlandı"
-        case .draft:
-            return "Taslak"
-        }
-    }
-    
-    var color: String {
-        switch self {
-        case .active:
-            return "green"
-        case .cancelled:
-            return "red"
-        case .completed:
-            return "blue"
-        case .draft:
-            return "orange"
         }
     }
 }

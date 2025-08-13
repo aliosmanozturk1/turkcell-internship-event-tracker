@@ -39,7 +39,6 @@ class CreateEventViewModel: ObservableObject {
     @Published var organizerWebsite = ""
     @Published var price = "0"
     @Published var currency = "TL"
-    @Published var status = "active"
     @Published var socialLinks = ""
     @Published var contactInfo = ""
     @Published var selectedImages: [UIImage] = []
@@ -91,12 +90,6 @@ class CreateEventViewModel: ObservableObject {
             currency: currency
         )
 
-        guard let eventStatus = EventStatus(rawValue: status) else {
-            errorMessage = "Invalid status"
-            isSaving = false
-            return
-        }
-
         let uploadedImages = try? await ImageUploader.upload(images: selectedImages)
         selectedImages.removeAll()
 
@@ -115,7 +108,6 @@ class CreateEventViewModel: ObservableObject {
             requirements: requirements,
             organizer: organizer,
             pricing: pricing,
-            status: eventStatus,
             socialLinks: socialLinks,
             contactInfo: contactInfo,
             images: uploadedImages ?? [],
@@ -162,7 +154,6 @@ class CreateEventViewModel: ObservableObject {
         organizerWebsite = ""
         price = "0"
         currency = "TL"
-        status = "active"
         socialLinks = ""
         contactInfo = ""
         selectedImages = []

@@ -258,27 +258,6 @@ struct EventDetailView: View {
                 if !viewModel.event.whatToExpected.isEmpty {
                     DetailRow(title: "Ne Beklemeli?", value: viewModel.event.whatToExpected, isMultiline: true)
                 }
-                
-                // Event Status
-                HStack {
-                    Text("Durum")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .fontWeight(.medium)
-                    
-                    Spacer()
-                    
-                    Text(viewModel.event.status.displayName)
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(viewModel.statusColor.opacity(0.1))
-                        )
-                        .foregroundColor(viewModel.statusColor)
-                }
             }
         }
     }
@@ -663,7 +642,6 @@ private struct MapAnnotation: Identifiable {
             website: "https://istanburios.com"
         ),
         pricing: EventPricing(price: 0, currency: "TL"),
-        status: .active,
         socialLinks: "@istanburios",
         contactInfo: "Whatsapp grupumuz: https://chat.whatsapp.com/example",
         images: [
