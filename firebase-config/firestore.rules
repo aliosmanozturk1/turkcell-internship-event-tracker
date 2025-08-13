@@ -1,59 +1,45 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Events collection rules
+    // Events collection - read for all authenticated users (including anonymous)
+    // but write only for non-anonymous authenticated users
     match /events/{eventId} {
-      // Allow read if event is active or user is the creator
-      allow read: if resource.data.status == 'active' || 
-                     (request.auth != null && resource.data.createdBy == request.auth.uid);
+      // All authenticated users (including anonymous) can read events
+      allow read: if request.auth != null;
       
-      // Allow create if user is authenticated and the createdBy field matches the user
-      allow create: if request.auth != null && 
-                       request.auth.uid == resource.data.createdBy &&
-                       isValidEventData(resource.data);
+      // Only non-anonymous authenticated users can create events
+      allow create: if request.auth != null && !request.auth.token.firebase.sign_in_provider == 'anonymous';
       
-      // Allow update if user is the creator and maintains data integrity
-      allow update: if request.auth != null && 
-                       request.auth.uid == resource.data.createdBy &&
-                       isValidEventUpdate(resource.data, request.resource.data);
-      
-      // Allow delete if user is the creator
-      allow delete: if request.auth != null && 
-                       request.auth.uid == resource.data.createdBy;
+      // Only the event creator can update or delete their events
+      allow update, delete: if request.auth != null 
+        && request.auth.token.firebase.sign_in_provider != 'anonymous'
+        && request.auth.uid == resource.data.userId;
     }
     
-    // Users collection rules
+    // Users collection - each user can only access their own profile
     match /users/{userId} {
-      // Users can read and write their own data
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Users can read and write their own profile
+      allow read, write: if request.auth != null 
+        && request.auth.uid == userId
+        && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
     
-    // Categories collection rules (read-only for all authenticated users)
+    // Categories collection - read-only for all authenticated users
     match /categories/{categoryId} {
       allow read: if request.auth != null;
+      allow write: if false; // Categories are managed by admins only
     }
     
-    // Helper functions
-    function isValidEventData(data) {
-      return data.keys().hasAll(['title', 'description', 'categories', 'startDate', 'endDate', 'location', 'organizer', 'createdBy', 'createdAt', 'updatedAt', 'status']) &&
-             data.title is string && data.title.size() > 0 &&
-             data.description is string && data.description.size() > 0 &&
-             data.categories is list && data.categories.size() > 0 &&
-             data.startDate is timestamp &&
-             data.endDate is timestamp &&
-             data.startDate < data.endDate &&
-             data.status in ['active', 'cancelled', 'completed', 'draft'] &&
-             data.createdBy is string &&
-             data.createdAt is timestamp &&
-             data.updatedAt is timestamp;
-    }
-    
-    function isValidEventUpdate(oldData, newData) {
-      return newData.createdBy == oldData.createdBy &&
-             newData.createdAt == oldData.createdAt &&
-             newData.updatedAt is timestamp &&
-             newData.updatedAt > oldData.updatedAt &&
-             isValidEventData(newData);
+    // Event participants subcollection
+    match /events/{eventId}/participants/{participantId} {
+      // All authenticated users can read participants
+      allow read: if request.auth != null;
+      
+      // Only non-anonymous users can join/leave events
+      allow create, delete: if request.auth != null 
+        && request.auth.token.firebase.sign_in_provider != 'anonymous'
+        && request.auth.uid == participantId;
     }
   }
 }
