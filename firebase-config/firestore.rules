@@ -11,10 +11,19 @@ service cloud.firestore {
       // Only non-anonymous authenticated users can create events
       allow create: if request.auth != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
       
-      // Only the event creator can update or delete their events
+      // Event creator can update or delete their events
       allow update, delete: if request.auth != null 
         && request.auth.token.firebase.sign_in_provider != 'anonymous'
         && request.auth.uid == resource.data.userId;
+      
+      // Non-anonymous users can update only participants.currentParticipants field (+1/-1)
+      allow update: if request.auth != null 
+        && request.auth.token.firebase.sign_in_provider != 'anonymous'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants'])
+        && request.resource.data.participants.diff(resource.data.participants).affectedKeys().hasOnly(['currentParticipants'])
+        && request.resource.data.participants.currentParticipants is int
+        && (request.resource.data.participants.currentParticipants == resource.data.participants.currentParticipants + 1
+            || request.resource.data.participants.currentParticipants == resource.data.participants.currentParticipants - 1);
     }
     
     // Users collection - each user can only access their own profile
