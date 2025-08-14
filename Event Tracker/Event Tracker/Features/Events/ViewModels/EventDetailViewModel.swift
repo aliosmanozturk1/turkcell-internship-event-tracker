@@ -19,6 +19,8 @@ final class EventDetailViewModel: ObservableObject {
     @Published var calendarAlertMessage = ""
     @Published var isJoined = false
     @Published var isUpdatingJoin = false
+    @Published var showingDeleteConfirmation = false
+    @Published var isDeleting = false
     
     private let eventStore = EKEventStore()
     
@@ -239,6 +241,28 @@ final class EventDetailViewModel: ObservableObject {
             let newCount = try await EventService.shared.leaveEvent(eventId: eventId, userId: userId)
             event.participants.currentParticipants = newCount
             isJoined = false
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    // MARK: - Event Owner Check
+    var isEventOwner: Bool {
+        guard let currentUserId = AuthService.shared.currentUser?.uid else { return false }
+        return event.createdBy == currentUserId
+    }
+    
+    // MARK: - Delete Event
+    func deleteEvent() async {
+        guard isEventOwner else { return }
+        guard let eventId = event.id else { return }
+        
+        isDeleting = true
+        defer { isDeleting = false }
+        
+        do {
+            try await EventService.shared.deleteEvent(id: eventId)
+            // Successfully deleted
         } catch {
             errorMessage = error.localizedDescription
         }

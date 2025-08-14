@@ -78,6 +78,14 @@ struct EventDetailView: View {
                             Label("Website", systemImage: "globe")
                         }
                     }
+                    
+                    if viewModel.isEventOwner {
+                        Button(role: .destructive, action: { 
+                            viewModel.showingDeleteConfirmation = true 
+                        }) {
+                            Label("Sil", systemImage: "trash")
+                        }
+                    }
                 } label: {
                     Image(systemName: "ellipsis.circle")
                         .foregroundColor(.blue)
@@ -130,6 +138,26 @@ struct EventDetailView: View {
             Button("Tamam", role: .cancel) {}
         } message: {
             Text(viewModel.calendarAlertMessage)
+        }
+        .alert("Event'i Sil", isPresented: $viewModel.showingDeleteConfirmation) {
+            Button("İptal", role: .cancel) {}
+            Button("Sil", role: .destructive) {
+                Task {
+                    await viewModel.deleteEvent()
+                    if viewModel.errorMessage == nil {
+                        dismiss()
+                    }
+                }
+            }
+        } message: {
+            Text("Bu event'i silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.")
+        }
+        .alert("Hata", isPresented: .constant(viewModel.errorMessage != nil)) {
+            Button("Tamam") { 
+                viewModel.errorMessage = nil 
+            }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
         }
         .sheet(isPresented: $showingMapOptions) {
             VStack(spacing: 0) {

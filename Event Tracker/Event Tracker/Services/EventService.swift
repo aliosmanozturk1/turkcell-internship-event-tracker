@@ -204,4 +204,30 @@ final class EventService {
         let joinedIds = (userDoc.data()? ["joinedEvents"] as? [String]) ?? []
         return try await fetchEvents(withIds: joinedIds)
     }
+    
+    // MARK: - Delete Event
+    
+    func deleteEvent(id: String) async throws {
+        let eventRef = eventsCollection.document(id)
+        
+        // Get event data before deleting to clean up user references
+        let eventSnapshot = try await eventRef.getDocument()
+        guard let eventData = eventSnapshot.data() else {
+            throw NSError(domain: "EventService", code: 404, userInfo: [NSLocalizedDescriptionKey: "Event not found"])
+        }
+        
+        let createdBy = eventData["createdBy"] as? String ?? ""
+        
+        // Delete the event document
+        try await eventRef.delete()
+        
+        // Clean up creator's createdEvents list if needed
+        if !createdBy.isEmpty {
+            try await usersCollection.document(createdBy)
+                .updateData(["createdEvents": FieldValue.arrayRemove([id])])
+        }
+        
+        // TODO: Clean up joinedEvents from all users who joined this event
+        // This could be expensive for large events, might want to implement as a background job
+    }
 }
