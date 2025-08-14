@@ -14,7 +14,7 @@ service cloud.firestore {
       // Event creator can update or delete their events
       allow update, delete: if request.auth != null 
         && request.auth.token.firebase.sign_in_provider != 'anonymous'
-        && request.auth.uid == resource.data.userId;
+        && request.auth.uid == resource.data.createdBy;
       
       // Non-anonymous users can update only participants.currentParticipants field (+1/-1)
       allow update: if request.auth != null 
