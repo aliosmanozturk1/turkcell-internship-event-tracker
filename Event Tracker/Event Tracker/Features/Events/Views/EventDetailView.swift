@@ -73,10 +73,6 @@ struct EventDetailView: View {
                         Label("Paylaş", systemImage: "square.and.arrow.up")
                     }
                     
-                    Button(action: { viewModel.addToCalendar() }) {
-                        Label("Takvime Ekle", systemImage: "calendar.badge.plus")
-                    }
-                    
                     if !viewModel.event.organizer.website.isEmpty {
                         Button(action: { viewModel.visitWebsite() }) {
                             Label("Website", systemImage: "globe")
