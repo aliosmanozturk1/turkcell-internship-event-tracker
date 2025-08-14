@@ -210,6 +210,9 @@ struct EventContentView: View {
                 .padding()
             }
         }
+        .refreshable {
+            await viewModel.loadEvents()
+        }
     }
 }
 
