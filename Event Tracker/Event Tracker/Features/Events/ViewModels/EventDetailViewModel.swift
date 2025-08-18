@@ -184,22 +184,6 @@ final class EventDetailViewModel: ObservableObject {
         UIApplication.shared.open(url)
     }
     
-    // MARK: - Event Actions
-    func refreshEventData() async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            // If we have event ID, we could fetch updated data from Firebase
-            // For now, we'll keep the current event data
-            // let updatedEvent = try await EventService.shared.fetchEvent(id: event.id)
-            // self.event = updatedEvent
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-        
-        isLoading = false
-    }
 
     // MARK: - Participation (Join/Leave)
     func loadJoinState() async {
