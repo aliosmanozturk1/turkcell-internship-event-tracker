@@ -110,3 +110,6 @@ Event Tracker/.DS_Store
 Event Tracker/Event-Tracker-Info.plist
 Event Tracker/Event Tracker/GoogleService-Info.plist
 firestore-bulk-event-import/service-account-key.json
+AGENTS.md
+CLAUDE.md
+QWEN.md
