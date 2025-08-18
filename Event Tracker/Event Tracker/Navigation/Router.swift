@@ -5,7 +5,7 @@ import Combine
 
 enum AppRoute: Hashable {
     case register
-    // Future routes can be added here (e.g., eventDetail(id: String))
+    case eventDetail(CreateEventModel)
 }
 
 // MARK: - Router (Navigation Coordinator)
@@ -26,6 +26,7 @@ final class Router: ObservableObject {
     }
     
     // Pop to root
+    
     func popToRoot() {
         path.removeLast(path.count)
     }

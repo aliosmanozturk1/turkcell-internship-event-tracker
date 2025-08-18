@@ -1,0 +1,60 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Events collection - read for all authenticated users (including anonymous)
+    // but write only for non-anonymous authenticated users
+    match /events/{eventId} {
+      // All authenticated users (including anonymous) can read events
+      allow read: if request.auth != null;
+      
+      // Only non-anonymous authenticated users can create events
+      allow create: if request.auth != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
+      
+      // Event creator can update or delete their events
+      allow update, delete: if request.auth != null 
+        && request.auth.token.firebase.sign_in_provider != 'anonymous'
+        && request.auth.uid == resource.data.createdBy;
+      
+      // Non-anonymous users can update only participants.currentParticipants field (+1/-1)
+      allow update: if request.auth != null 
+        && request.auth.token.firebase.sign_in_provider != 'anonymous'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants'])
+        && request.resource.data.participants.diff(resource.data.participants).affectedKeys().hasOnly(['currentParticipants'])
+        && request.resource.data.participants.currentParticipants is int
+        && (request.resource.data.participants.currentParticipants == resource.data.participants.currentParticipants + 1
+            || request.resource.data.participants.currentParticipants == resource.data.participants.currentParticipants - 1);
+    }
+    
+    // Users collection - each user can only access their own profile
+    match /users/{userId} {
+      // Users can read and write their own profile
+      allow read, write: if request.auth != null 
+        && request.auth.uid == userId
+        && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+    
+    // Categories collection - read-only for all authenticated users
+    match /categories/{categoryId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Categories are managed by admins only
+    }
+    
+    // Groups collection - read-only for all authenticated users
+    match /groups/{groupId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    
+    // Event participants subcollection
+    match /events/{eventId}/participants/{participantId} {
+      // All authenticated users can read participants
+      allow read: if request.auth != null;
+      
+      // Only non-anonymous users can join/leave events
+      allow create, delete: if request.auth != null 
+        && request.auth.token.firebase.sign_in_provider != 'anonymous'
+        && request.auth.uid == participantId;
+    }
+  }
+}

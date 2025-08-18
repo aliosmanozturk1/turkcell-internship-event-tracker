@@ -1,11 +1,11 @@
-import SwiftUI
 import FirebaseAuth
+import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject var sessionManager: SessionManager
     @EnvironmentObject var router: Router
     @State private var showSplash = true
-    
+
     var body: some View {
         if showSplash {
             SplashScreenView()
@@ -21,7 +21,19 @@ struct RootView: View {
                 Group {
                     if sessionManager.isSignedIn {
                         if let _ = sessionManager.userProfile {
-                            MainView(userEmail: sessionManager.user?.email ?? "")
+                            TabView {
+                                Tab("Events", systemImage: "figure.socialdance") {
+                                    EventView()
+                                }
+
+                                Tab("Create Event", systemImage: "calendar.badge.plus") {
+                                    CreateEventView()
+                                }
+
+                                Tab("Profile", systemImage: "person.crop.circle") {
+                                    ProfileView(userEmail: sessionManager.user?.email ?? "")
+                                }
+                            }
                         } else {
                             CompleteProfileView()
                         }
@@ -33,6 +45,8 @@ struct RootView: View {
                     switch route {
                     case .register:
                         RegisterView()
+                    case .eventDetail(let event):
+                        EventDetailView(event: event)
                     }
                 }
             }
@@ -44,4 +58,4 @@ struct RootView: View {
     RootView()
         .environmentObject(SessionManager())
         .environmentObject(Router())
-} 
+}
