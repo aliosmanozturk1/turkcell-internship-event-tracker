@@ -66,7 +66,7 @@ struct LoginView: View {
                         TextField("E-posta adresinizi girin", text: $viewModel.email)
                             .keyboardType(.emailAddress)
                             .textContentType(.emailAddress)
-                            .autocapitalization(.none)
+                            .textInputAutocapitalization(.never)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 12)
                             .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
