@@ -8,7 +8,6 @@
 import FirebaseAuth
 import Foundation
 import GoogleSignIn
-import FirebaseCore
 import AuthenticationServices
 
 final class AuthService {
@@ -51,14 +50,6 @@ final class AuthService {
     
     // MARK: - Google Sign-In
     func signInWithGoogle() async throws -> User {
-        // Google Sign-In konfigürasyonunu kontrol et
-        guard let clientID = FirebaseApp.app()?.options.clientID else {
-            throw AuthError.configurationError
-        }
-        
-        // Google Sign-In konfigürasyonunu ayarla
-        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
-        
         // SwiftUI için root view controller'ı al
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let rootViewController = windowScene.windows.first?.rootViewController else {
