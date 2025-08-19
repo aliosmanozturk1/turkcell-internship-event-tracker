@@ -7,6 +7,8 @@ final class ImageUploader {
     static func upload(images: [UIImage]) async throws -> [EventImage] {
         var uploaded: [EventImage] = []
         let storageRef = storage.reference().child("events")
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
         for image in images {
             let id = UUID().uuidString
             let mainRef = storageRef.child("images/\(id).jpg")
@@ -14,8 +16,8 @@ final class ImageUploader {
             let mainData = image.resized(to: 1280).jpegData(compressionQuality: 0.7)
             let thumbData = image.resized(to: 300).jpegData(compressionQuality: 0.3)
             if let mainData, let thumbData {
-                _ = try await mainRef.putDataAsync(mainData)
-                _ = try await thumbRef.putDataAsync(thumbData)
+                _ = try await mainRef.putDataAsync(mainData, metadata: metadata)
+                _ = try await thumbRef.putDataAsync(thumbData, metadata: metadata)
                 let mainURL = try await mainRef.downloadURL()
                 let thumbURL = try await thumbRef.downloadURL()
                 uploaded.append(EventImage(url: mainURL.absoluteString, thumbnailUrl: thumbURL.absoluteString))
