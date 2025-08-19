@@ -16,8 +16,8 @@ final class ImageUploader {
                     let mainRef = storageRef.child("images/\(id).jpg")
                     let thumbRef = storageRef.child("thumbnails/\(id).jpg")
                     
-                    guard let mainData = image.resized(to: 1280).jpegData(compressionQuality: 0.7),
-                          let thumbData = image.resized(to: 300).jpegData(compressionQuality: 0.3) else {
+                    guard let mainData = await image.resized(to: 1280).jpegData(compressionQuality: 0.7),
+                          let thumbData = await image.resized(to: 300).jpegData(compressionQuality: 0.3) else {
                         return nil
                     }
                     
