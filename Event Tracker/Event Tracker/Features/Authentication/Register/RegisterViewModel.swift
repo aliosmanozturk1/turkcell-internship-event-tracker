@@ -9,7 +9,7 @@ import Combine
 import Foundation
 
 @MainActor
-class RegisterViewModel: ObservableObject {
+final class RegisterViewModel: ObservableObject {
     // Input
     @Published var email: String = ""
     @Published var password: String = ""

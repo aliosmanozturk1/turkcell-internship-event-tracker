@@ -11,7 +11,7 @@ import FirebaseAuth
 import AuthenticationServices
 
 @MainActor
-class LoginViewModel: ObservableObject {
+final class LoginViewModel: ObservableObject {
     // Input
     @Published var email: String = ""
     @Published var password: String = ""

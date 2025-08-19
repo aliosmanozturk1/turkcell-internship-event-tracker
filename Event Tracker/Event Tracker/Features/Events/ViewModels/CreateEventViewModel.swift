@@ -11,7 +11,7 @@ import FirebaseAuth
 import Combine
 
 @MainActor
-class CreateEventViewModel: ObservableObject {
+final class CreateEventViewModel: ObservableObject {
     @Published var title = ""
     @Published var description = ""
     @Published var selectedCategories: Set<String> = []

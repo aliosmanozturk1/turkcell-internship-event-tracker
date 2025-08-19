@@ -11,7 +11,7 @@ import FirebaseAuth
 import Firebase
 
 @MainActor
-class CompleteProfileViewModel: ObservableObject {
+final class CompleteProfileViewModel: ObservableObject {
     // Input
     @Published var firstName: String = ""
     @Published var lastName: String = ""

@@ -11,7 +11,7 @@ import FirebaseAuth
 import GoogleSignIn
 
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+final class AppDelegate: NSObject, UIApplicationDelegate {
     /// Tells the delegate that the launch process is almost done and the app is almost ready to run.
     ///
     /// You should use this method to perform any final initialization before your app is presented to the user.
@@ -90,4 +90,3 @@ struct Event_TrackerApp: App {
         }
     }
 }
-
