@@ -76,8 +76,8 @@ final class EventService {
                 return fail(404, StringConstants.ErrorMessages.eventNotFound)
             }
 
-            var userData = userSnapshot.data() ?? [:]
-            var joinedEvents = userData[StringConstants.FirestoreFields.joinedEvents] as? [String] ?? []
+            let userData = userSnapshot.data() ?? [:]
+            let joinedEvents = userData[StringConstants.FirestoreFields.joinedEvents] as? [String] ?? []
 
             // Prevent double-join
             if joinedEvents.contains(eventId) {
