@@ -244,7 +244,7 @@ struct PriceInputField: View {
                 TextField(placeholder, text: $text)
                     .keyboardType(.decimalPad)
                     .focused($isFocused)
-                    .onChange(of: text) { newValue in
+                    .onChange(of: text) { _, newValue in
                         // Sadece değeri güncelle, preset seçimini dokunma
                         if newValue.isEmpty {
                             value = nil
@@ -252,7 +252,7 @@ struct PriceInputField: View {
                             value = doubleValue
                         }
                     }
-                    .onChange(of: isFocused) { editing in
+                    .onChange(of: isFocused) { _, editing in
                         // Kullanıcı yazmaya başladığında preset seçimini temizle
                         if editing {
                             selectedPreset = nil

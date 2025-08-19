@@ -75,7 +75,7 @@ struct LocationFilterView: View {
                                     
                                     TextField("Şehir, ilçe veya mekan adı girin...", text: $tempLocation)
                                         .focused($isLocationFieldFocused)
-                                        .onChange(of: isLocationFieldFocused) { editing in
+                                        .onChange(of: isLocationFieldFocused) { _, editing in
                                             // Kullanıcı yazmaya başladığında preset seçimini temizle
                                             if editing {
                                                 selectedPreset = nil

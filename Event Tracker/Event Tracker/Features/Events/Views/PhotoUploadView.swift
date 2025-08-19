@@ -51,7 +51,7 @@ struct PhotoUploadView: View {
             }
         }
         .photosPicker(isPresented: $showingImagePicker, selection: $selectedItems, maxSelectionCount: maxPhotos - images.count, matching: .images)
-        .onChange(of: selectedItems) { items in
+        .onChange(of: selectedItems) { _, items in
             Task {
                 for item in items {
                     if let data = try? await item.loadTransferable(type: Data.self),

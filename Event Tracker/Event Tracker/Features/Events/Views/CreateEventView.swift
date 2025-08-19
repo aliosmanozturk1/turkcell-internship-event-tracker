@@ -162,8 +162,8 @@ struct CreateEventView: View {
                 longitude: $viewModel.locationLongitude
             )
         }
-        .onChange(of: viewModel.locationLatitude) { _ in reverseGeocodeSelectedLocation() }
-        .onChange(of: viewModel.locationLongitude) { _ in reverseGeocodeSelectedLocation() }
+        .onChange(of: viewModel.locationLatitude) { reverseGeocodeSelectedLocation() }
+        .onChange(of: viewModel.locationLongitude) { reverseGeocodeSelectedLocation() }
         .onAppear { reverseGeocodeSelectedLocation() }
     }
     
