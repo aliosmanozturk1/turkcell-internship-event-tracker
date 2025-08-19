@@ -19,68 +19,26 @@ extension CreateEventModel {
 
 struct CreateEventModel: Identifiable, Codable, Hashable {
     @DocumentID var id: String?
-    var title: String
-    var description: String
-    var categories: [String]
-    var whatToExpected: String
-    var startDate: Date
-    var endDate: Date
-    var registrationDeadline: Date
-    var location: EventLocation
-    var participants: EventParticipants
-    var ageRestriction: AgeRestriction
-    var language: String
-    var requirements: String
-    var organizer: EventOrganizer
-    var pricing: EventPricing
-    var socialLinks: String
-    var contactInfo: String
-    var images: [EventImage]
-    var createdAt: Date
-    var updatedAt: Date
-    var createdBy: String
-    
-    init(
-        title: String = "",
-        description: String = "",
-        categories: [String] = [],
-        whatToExpected: String = "",
-        startDate: Date = Date().addingTimeInterval(TimeConstants.oneDayInSeconds),
-        endDate: Date = Date().addingTimeInterval(TimeConstants.twentyFiveHoursInSeconds),
-        registrationDeadline: Date = Date().addingTimeInterval(TimeConstants.twentyThreeHoursInSeconds),
-        location: EventLocation = EventLocation(),
-        participants: EventParticipants = EventParticipants(),
-        ageRestriction: AgeRestriction = AgeRestriction(),
-        language: String = "tr",
-        requirements: String = "",
-        organizer: EventOrganizer = EventOrganizer(),
-        pricing: EventPricing = EventPricing(),
-        socialLinks: String = "",
-        contactInfo: String = "",
-        images: [EventImage] = [],
-        createdBy: String = ""
-    ) {
-        self.title = title
-        self.description = description
-        self.categories = categories
-        self.whatToExpected = whatToExpected
-        self.startDate = startDate
-        self.endDate = endDate
-        self.registrationDeadline = registrationDeadline
-        self.location = location
-        self.participants = participants
-        self.ageRestriction = ageRestriction
-        self.language = language
-        self.requirements = requirements
-        self.organizer = organizer
-        self.pricing = pricing
-        self.socialLinks = socialLinks
-        self.contactInfo = contactInfo
-        self.images = images
-        self.createdAt = Date()
-        self.updatedAt = Date()
-        self.createdBy = createdBy
-    }
+    var title: String = ""
+    var description: String = ""
+    var categories: [String] = []
+    var whatToExpected: String = ""
+    var startDate: Date = Date().addingTimeInterval(TimeConstants.oneDayInSeconds)
+    var endDate: Date = Date().addingTimeInterval(TimeConstants.twentyFiveHoursInSeconds)
+    var registrationDeadline: Date = Date().addingTimeInterval(TimeConstants.twentyThreeHoursInSeconds)
+    var location: EventLocation = EventLocation()
+    var participants: EventParticipants = EventParticipants()
+    var ageRestriction: AgeRestriction = AgeRestriction()
+    var language: String = "tr"
+    var requirements: String = ""
+    var organizer: EventOrganizer = EventOrganizer()
+    var pricing: EventPricing = EventPricing()
+    var socialLinks: String = ""
+    var contactInfo: String = ""
+    var images: [EventImage] = []
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
+    var createdBy: String = ""
 }
 
 struct EventLocation: Codable, Hashable {
