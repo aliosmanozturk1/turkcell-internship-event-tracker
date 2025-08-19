@@ -64,7 +64,10 @@ struct LocationPickerView: View {
                 }
 
                 ZStack {
-                    Map(coordinateRegion: $region, showsUserLocation: true, userTrackingMode: .constant(.none))
+                    Map(position: .constant(.region(region))) {
+                        UserAnnotation()
+                    }
+                    .mapControlVisibility(.hidden)
                         .ignoresSafeArea()
                     
                     Image(systemName: "mappin.circle.fill")
