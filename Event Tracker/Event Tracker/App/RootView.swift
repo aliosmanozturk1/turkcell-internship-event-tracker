@@ -22,17 +22,23 @@ struct RootView: View {
                     if sessionManager.isSignedIn {
                         if let _ = sessionManager.userProfile {
                             TabView {
-                                Tab("Events", systemImage: "figure.socialdance") {
-                                    EventView()
-                                }
+                                EventView()
+                                    .tabItem {
+                                        Image(systemName: "figure.socialdance")
+                                        Text("Events")
+                                    }
 
-                                Tab("Create Event", systemImage: "calendar.badge.plus") {
-                                    CreateEventView()
-                                }
+                                CreateEventView()
+                                    .tabItem {
+                                        Image(systemName: "calendar.badge.plus")
+                                        Text("Create Event")
+                                    }
 
-                                Tab("Profile", systemImage: "person.crop.circle") {
-                                    ProfileView(userEmail: sessionManager.user?.email ?? "")
-                                }
+                                ProfileView(userEmail: sessionManager.user?.email ?? "")
+                                    .tabItem {
+                                        Image(systemName: "person.crop.circle")
+                                        Text("Profile")
+                                    }
                             }
                         } else {
                             CompleteProfileView()
