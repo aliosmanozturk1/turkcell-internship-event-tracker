@@ -56,6 +56,7 @@ final class CreateEventViewModel: ObservableObject {
 
         isSaving = true
         errorMessage = nil
+        defer { isSaving = false }
 
         let location = EventLocation(
             name: locationName,
@@ -123,7 +124,6 @@ final class CreateEventViewModel: ObservableObject {
             isEventCreated = false
         }
 
-        isSaving = false
     }
     
     func clearForm() {

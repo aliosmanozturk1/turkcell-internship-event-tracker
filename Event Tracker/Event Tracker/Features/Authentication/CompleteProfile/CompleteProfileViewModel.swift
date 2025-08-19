@@ -53,6 +53,7 @@ final class CompleteProfileViewModel: ObservableObject {
 
         isSaving = true
         errorMessage = nil
+        defer { isSaving = false }
 
         do {
             try await UserService.shared.createUser(uid: user.uid,
@@ -64,7 +65,5 @@ final class CompleteProfileViewModel: ObservableObject {
             errorMessage = error.localizedDescription
             isProfileCompleted = false
         }
-
-        isSaving = false
     }
 }

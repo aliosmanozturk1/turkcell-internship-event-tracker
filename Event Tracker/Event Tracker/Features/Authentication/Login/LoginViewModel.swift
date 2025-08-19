@@ -37,6 +37,7 @@ final class LoginViewModel: ObservableObject {
             
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
             
         do {
             _ = try await AuthService.shared.signIn(email: email, password: password)
@@ -45,13 +46,12 @@ final class LoginViewModel: ObservableObject {
             isLogin = false
             errorMessage = error.localizedDescription
         }
-            
-        isLoading = false
     }
     
     func loginWithGoogle() async {
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
         
         do {
             let user = try await AuthService.shared.signInWithGoogle()
@@ -62,8 +62,6 @@ final class LoginViewModel: ObservableObject {
             isLogin = false
             errorMessage = error.localizedDescription
         }
-        
-        isLoading = false
     }
     
     func loginWithApple(request: ASAuthorizationAppleIDRequest) {
@@ -78,6 +76,7 @@ final class LoginViewModel: ObservableObject {
     func handleAppleSignInResult(_ result: Result<ASAuthorization, Error>) async {
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
         
         switch result {
         case .success(let authorization):
@@ -87,7 +86,6 @@ final class LoginViewModel: ObservableObject {
                   let nonce = currentNonce else {
                 isLogin = false
                 errorMessage = "Apple Sign-In failed"
-                isLoading = false
                 return
             }
             
@@ -105,8 +103,6 @@ final class LoginViewModel: ObservableObject {
             isLogin = false
             errorMessage = error.localizedDescription
         }
-        
-        isLoading = false
     }
         
     func clear() {

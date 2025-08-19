@@ -44,6 +44,7 @@ final class RegisterViewModel: ObservableObject {
             
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
             
         do {
             _ = try await AuthService.shared.signUp(email: email, password: password)
@@ -52,8 +53,6 @@ final class RegisterViewModel: ObservableObject {
             isRegistered = false
             errorMessage = error.localizedDescription
         }
-            
-        isLoading = false
     }
         
     func clear() {
