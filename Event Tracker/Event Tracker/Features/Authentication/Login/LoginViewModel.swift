@@ -43,11 +43,7 @@ final class LoginViewModel: ObservableObject {
             isLogin = true
         } catch {
             isLogin = false
-            if let error = error as? AuthService.AuthError {
-                errorMessage = error.localizedDescription
-            } else {
-                errorMessage = error.localizedDescription
-            }
+            errorMessage = error.localizedDescription
         }
             
         isLoading = false
@@ -64,11 +60,7 @@ final class LoginViewModel: ObservableObject {
             isLogin = true
         } catch {
             isLogin = false
-            if let error = error as? AuthService.AuthError {
-                errorMessage = error.localizedDescription
-            } else {
-                errorMessage = error.localizedDescription
-            }
+            errorMessage = error.localizedDescription
         }
         
         isLoading = false
@@ -106,11 +98,7 @@ final class LoginViewModel: ObservableObject {
                 currentNonce = nil
             } catch {
                 isLogin = false
-                if let error = error as? AuthService.AuthError {
-                    errorMessage = error.localizedDescription
-                } else {
-                    errorMessage = error.localizedDescription
-                }
+                errorMessage = error.localizedDescription
             }
             
         case .failure(let error):

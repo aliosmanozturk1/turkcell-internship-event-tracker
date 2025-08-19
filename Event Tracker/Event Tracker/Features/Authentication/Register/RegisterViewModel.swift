@@ -50,11 +50,7 @@ final class RegisterViewModel: ObservableObject {
             isRegistered = true
         } catch {
             isRegistered = false
-            if let error = error as? AuthService.AuthError {
-                errorMessage = error.localizedDescription
-            } else {
-                errorMessage = error.localizedDescription
-            }
+            errorMessage = error.localizedDescription
         }
             
         isLoading = false
