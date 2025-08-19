@@ -47,7 +47,7 @@ final class SessionManager: ObservableObject {
             self.user = nil
             self.userProfile = nil
         } catch {
-            print("Sign out error: \(error.localizedDescription)")
+            Logger.error("Sign out error: \(error.localizedDescription)", category: .session)
         }
     }
 
@@ -55,7 +55,7 @@ final class SessionManager: ObservableObject {
         do {
             self.userProfile = try await UserService.shared.fetchUser(uid: user.uid)
         } catch {
-            print("Failed to fetch user profile: \(error.localizedDescription)")
+            Logger.error("Failed to fetch user profile: \(error.localizedDescription)", category: .session)
             self.userProfile = nil
         }
     }

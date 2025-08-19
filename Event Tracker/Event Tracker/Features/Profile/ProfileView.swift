@@ -214,7 +214,7 @@ struct ProfileView: View {
             joinedEvents = j
         } catch {
             // For simplicity, ignore per-field errors; could add toast later
-            print("Profile load error: \(error.localizedDescription)")
+            Logger.error("Profile load error: \(error.localizedDescription)", category: .profile)
         }
         isLoading = false
     }

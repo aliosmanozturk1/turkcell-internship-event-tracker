@@ -192,7 +192,7 @@ final class EventDetailViewModel: ObservableObject {
             isJoined = try await EventService.shared.isUserJoined(eventId: eventId, userId: userId)
         } catch {
             // Non-fatal: keep default false, but surface error if helpful
-            print("Failed to check join state: \(error.localizedDescription)")
+            Logger.warning("Failed to check join state: \(error.localizedDescription)", category: .events)
         }
     }
 

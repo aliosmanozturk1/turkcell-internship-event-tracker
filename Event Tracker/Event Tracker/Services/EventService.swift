@@ -22,7 +22,7 @@ final class EventService {
                     .setData([StringConstants.FirestoreFields.createdEvents: FieldValue.arrayUnion([documentRef.documentID])], merge: true)
             } catch {
                 // Non-fatal: event is created even if this fails
-                print("Failed to record created event for user: \(error.localizedDescription)")
+                Logger.warning("Failed to record created event for user: \(error.localizedDescription)", category: .events)
             }
         }
 

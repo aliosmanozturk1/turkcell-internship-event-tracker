@@ -31,7 +31,7 @@ final class CompleteProfileViewModel: ObservableObject {
             }
         } catch {
             // Non-fatal; leave fields empty for user to fill
-            print("Load profile error: \(error.localizedDescription)")
+            Logger.warning("Load profile error: \(error.localizedDescription)", category: .profile)
         }
     }
 
