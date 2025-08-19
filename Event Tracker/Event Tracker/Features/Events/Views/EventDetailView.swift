@@ -127,10 +127,7 @@ struct EventDetailView: View {
                             }
                         }
                     }
-                    //.frame(minWidth: 100)
                 }
-                // .buttonStyle(.borderedProminent)
-                // .tint(viewModel.isJoined ? .red : .blue)
                 .disabled(viewModel.isUpdatingJoin || viewModel.event.participants.isFull && !viewModel.isJoined)
             }
         }
@@ -641,7 +638,7 @@ private struct MapAnnotation: Identifiable {
         whatToExpected: "SwiftUI temel bilgiler, Navigation, State Management, API entegrasyonu konularını öğreneceksiniz.",
         startDate: Date(),
         endDate: Date().addingTimeInterval(7200),
-        registrationDeadline: Date().addingTimeInterval(-86400),
+        registrationDeadline: Date().addingTimeInterval(-CreateEventModel.TimeConstants.oneDayInSeconds),
         location: EventLocation(
             name: "ITU Teknokent",
             address1: "İTÜ Ayazağa Kampüsü",

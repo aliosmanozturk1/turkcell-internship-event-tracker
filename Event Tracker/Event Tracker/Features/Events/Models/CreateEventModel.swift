@@ -8,6 +8,15 @@
 import Foundation
 import FirebaseFirestore
 
+// MARK: - Constants
+extension CreateEventModel {
+    enum TimeConstants {
+        static let oneDayInSeconds: TimeInterval = 86400
+        static let twentyFiveHoursInSeconds: TimeInterval = 90000
+        static let twentyThreeHoursInSeconds: TimeInterval = 82800
+    }
+}
+
 struct CreateEventModel: Identifiable, Codable, Hashable {
     @DocumentID var id: String?
     var title: String
@@ -36,9 +45,9 @@ struct CreateEventModel: Identifiable, Codable, Hashable {
         description: String = "",
         categories: [String] = [],
         whatToExpected: String = "",
-        startDate: Date = Date().addingTimeInterval(86400),
-        endDate: Date = Date().addingTimeInterval(90000),
-        registrationDeadline: Date = Date().addingTimeInterval(82800),
+        startDate: Date = Date().addingTimeInterval(TimeConstants.oneDayInSeconds),
+        endDate: Date = Date().addingTimeInterval(TimeConstants.twentyFiveHoursInSeconds),
+        registrationDeadline: Date = Date().addingTimeInterval(TimeConstants.twentyThreeHoursInSeconds),
         location: EventLocation = EventLocation(),
         participants: EventParticipants = EventParticipants(),
         ageRestriction: AgeRestriction = AgeRestriction(),
