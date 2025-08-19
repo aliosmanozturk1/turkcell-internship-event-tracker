@@ -103,21 +103,21 @@ final class AuthService {
         var errorDescription: String? {
             switch self {
             case .userNotFound:
-                return "User not found"
+                return StringConstants.ErrorMessages.userNotFound
             case .invalidCredentials:
-                return "Invalid user credentials"
+                return StringConstants.ErrorMessages.invalidCredentials
             case .networkError:
-                return "Please check your internet connection"
+                return StringConstants.ErrorMessages.networkError
             case .configurationError:
                 return "Google Sign-In configuration error"
             case .noRootViewController:
-                return "Application view not found"
+                return StringConstants.ErrorMessages.applicationViewNotFound
             case .tokenError:
-                return "Google authentication error"
+                return StringConstants.ErrorMessages.googleAuthError
             case .appleSignInFailed:
-                return "Apple Sign-In failed"
+                return StringConstants.ErrorMessages.appleSignInFailed
             case .unknown:
-                return "An unknown error occurred"
+                return StringConstants.ErrorMessages.unknownError
             }
         }
     }

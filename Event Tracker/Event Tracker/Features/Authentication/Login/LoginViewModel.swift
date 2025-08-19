@@ -26,12 +26,12 @@ final class LoginViewModel: ObservableObject {
     func login() async {
         // Input validation
         guard !email.isEmpty else {
-            errorMessage = "Email cannot be empty."
+            errorMessage = StringConstants.ErrorMessages.emailCannotBeEmpty
             return
         }
         
         guard !password.isEmpty else {
-            errorMessage = "Password cannot be empty."
+            errorMessage = StringConstants.ErrorMessages.passwordCannotBeEmpty
             return
         }
             
@@ -85,7 +85,7 @@ final class LoginViewModel: ObservableObject {
                   let idTokenString = String(data: idToken, encoding: .utf8),
                   let nonce = currentNonce else {
                 isLogin = false
-                errorMessage = "Apple Sign-In failed"
+                errorMessage = StringConstants.ErrorMessages.appleSignInFailed
                 return
             }
             

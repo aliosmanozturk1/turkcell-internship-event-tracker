@@ -29,7 +29,7 @@ struct CreateEventModel: Identifiable, Codable, Hashable {
     var location: EventLocation = EventLocation()
     var participants: EventParticipants = EventParticipants()
     var ageRestriction: AgeRestriction = AgeRestriction()
-    var language: String = "tr"
+    var language: String = StringConstants.UI.defaultLanguage
     var requirements: String = ""
     var organizer: EventOrganizer = EventOrganizer()
     var pricing: EventPricing = EventPricing()
@@ -110,13 +110,13 @@ struct AgeRestriction: Codable, Hashable {
     var ageRangeText: String {
         switch (minAge, maxAge) {
         case (let min?, let max?):
-            return "\(min)-\(max) yaş"
+            return "\(min)-\(max) \(StringConstants.UI.ageRange)"
         case (let min?, nil):
-            return "\(min)+ yaş"
+            return "\(min)+ \(StringConstants.UI.agePlus)"
         case (nil, let max?):
-            return "\(max) yaş altı"
+            return "\(max) \(StringConstants.UI.ageUnder)"
         case (nil, nil):
-            return "Yaş sınırı yok"
+            return StringConstants.UI.noAgeRestriction
         }
     }
 }
@@ -144,7 +144,7 @@ struct EventPricing: Codable, Hashable {
     var price: Double
     var currency: String
     
-    init(price: Double = 0.0, currency: String = "TL") {
+    init(price: Double = 0.0, currency: String = StringConstants.UI.defaultCurrency) {
         self.price = price
         self.currency = currency
     }
@@ -155,7 +155,7 @@ struct EventPricing: Codable, Hashable {
     
     var formattedPrice: String {
         if isFree {
-            return "Ücretsiz"
+            return StringConstants.UI.free
         } else {
             return String(format: "%.2f %@", price, currency)
         }
