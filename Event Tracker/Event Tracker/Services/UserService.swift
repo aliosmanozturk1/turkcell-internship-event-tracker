@@ -7,7 +7,7 @@ final class UserService {
     private init() {}
 
     private var usersCollection: CollectionReference {
-        firestore.collection("users")
+        firestore.collection(FirestoreCollections.users)
     }
 
     func fetchUser(uid: String) async throws -> UserModel? {

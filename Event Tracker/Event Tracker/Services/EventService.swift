@@ -7,7 +7,7 @@ final class EventService {
     private init() {}
 
     private var eventsCollection: CollectionReference {
-        firestore.collection("events")
+        firestore.collection(FirestoreCollections.events)
     }
 
     func createEvent(_ event: CreateEventModel) async throws -> CreateEventModel {
@@ -38,7 +38,7 @@ final class EventService {
 
     // MARK: - Participation (Join / Leave)
 
-    private var usersCollection: CollectionReference { firestore.collection("users") }
+    private var usersCollection: CollectionReference { firestore.collection(FirestoreCollections.users) }
 
     /// Checks whether a given user has already joined the event.
     func isUserJoined(eventId: String, userId: String) async throws -> Bool {
