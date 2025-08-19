@@ -10,9 +10,6 @@ final class EventService {
         firestore.collection("events")
     }
 
-// func createEvent(_ event: CreateEventModel) async throws {
-//      try eventsCollection.addDocument(from: event)
-
     func createEvent(_ event: CreateEventModel) async throws -> CreateEventModel {
         let documentRef = try eventsCollection.addDocument(from: event)
         var eventWithId = event
@@ -226,8 +223,5 @@ final class EventService {
             try await usersCollection.document(createdBy)
                 .updateData(["createdEvents": FieldValue.arrayRemove([id])])
         }
-        
-        // TODO: Clean up joinedEvents from all users who joined this event
-        // This could be expensive for large events, might want to implement as a background job
     }
 }
