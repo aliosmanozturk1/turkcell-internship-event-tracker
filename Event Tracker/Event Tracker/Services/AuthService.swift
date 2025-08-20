@@ -8,7 +8,6 @@
 import FirebaseAuth
 import Foundation
 import GoogleSignIn
-import FirebaseCore
 import AuthenticationServices
 
 final class AuthService {
@@ -51,14 +50,6 @@ final class AuthService {
     
     // MARK: - Google Sign-In
     func signInWithGoogle() async throws -> User {
-        // Google Sign-In konfigürasyonunu kontrol et
-        guard let clientID = FirebaseApp.app()?.options.clientID else {
-            throw AuthError.configurationError
-        }
-        
-        // Google Sign-In konfigürasyonunu ayarla
-        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
-        
         // SwiftUI için root view controller'ı al
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let rootViewController = windowScene.windows.first?.rootViewController else {
@@ -112,21 +103,21 @@ final class AuthService {
         var errorDescription: String? {
             switch self {
             case .userNotFound:
-                return "User not found"
+                return StringConstants.ErrorMessages.userNotFound
             case .invalidCredentials:
-                return "Invalid user credentials"
+                return StringConstants.ErrorMessages.invalidCredentials
             case .networkError:
-                return "Please check your internet connection"
+                return StringConstants.ErrorMessages.networkError
             case .configurationError:
                 return "Google Sign-In configuration error"
             case .noRootViewController:
-                return "Application view not found"
+                return StringConstants.ErrorMessages.applicationViewNotFound
             case .tokenError:
-                return "Google authentication error"
+                return StringConstants.ErrorMessages.googleAuthError
             case .appleSignInFailed:
-                return "Apple Sign-In failed"
+                return StringConstants.ErrorMessages.appleSignInFailed
             case .unknown:
-                return "An unknown error occurred"
+                return StringConstants.ErrorMessages.unknownError
             }
         }
     }

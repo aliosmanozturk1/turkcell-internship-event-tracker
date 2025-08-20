@@ -13,7 +13,7 @@ final class CategoryViewModel: ObservableObject {
             categories = try await fetchedCategories
             groups = try await fetchedGroups
         } catch {
-            print("Failed to load categories: \(error)")
+            Logger.error("Failed to load categories: \(error)", category: .categories)
         }
     }
 }

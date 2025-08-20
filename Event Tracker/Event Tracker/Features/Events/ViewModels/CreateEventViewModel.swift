@@ -11,14 +11,14 @@ import FirebaseAuth
 import Combine
 
 @MainActor
-class CreateEventViewModel: ObservableObject {
+final class CreateEventViewModel: ObservableObject {
     @Published var title = ""
     @Published var description = ""
     @Published var selectedCategories: Set<String> = []
     @Published var whatToExpected = ""
     @Published var startDate = Date()
     @Published var endDate = Date().addingTimeInterval(3600)
-    @Published var registrationDeadline = Date().addingTimeInterval(-86400)
+    @Published var registrationDeadline = Date().addingTimeInterval(-CreateEventModel.TimeConstants.oneDayInSeconds)
     @Published var locationName = ""
     @Published var locationAddress1 = ""
     @Published var locationAddress2 = ""
@@ -56,6 +56,7 @@ class CreateEventViewModel: ObservableObject {
 
         isSaving = true
         errorMessage = nil
+        defer { isSaving = false }
 
         let location = EventLocation(
             name: locationName,
@@ -123,7 +124,6 @@ class CreateEventViewModel: ObservableObject {
             isEventCreated = false
         }
 
-        isSaving = false
     }
     
     func clearForm() {
@@ -133,7 +133,7 @@ class CreateEventViewModel: ObservableObject {
         whatToExpected = ""
         startDate = Date()
         endDate = Date().addingTimeInterval(3600)
-        registrationDeadline = Date().addingTimeInterval(-86400)
+        registrationDeadline = Date().addingTimeInterval(-CreateEventModel.TimeConstants.oneDayInSeconds)
         locationName = ""
         locationAddress1 = ""
         locationAddress2 = ""

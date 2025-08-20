@@ -11,7 +11,7 @@ import FirebaseAuth
 import Firebase
 
 @MainActor
-class CompleteProfileViewModel: ObservableObject {
+final class CompleteProfileViewModel: ObservableObject {
     // Input
     @Published var firstName: String = ""
     @Published var lastName: String = ""
@@ -31,7 +31,7 @@ class CompleteProfileViewModel: ObservableObject {
             }
         } catch {
             // Non-fatal; leave fields empty for user to fill
-            print("Load profile error: \(error.localizedDescription)")
+            Logger.warning("Load profile error: \(error.localizedDescription)", category: .profile)
         }
     }
 
@@ -53,6 +53,7 @@ class CompleteProfileViewModel: ObservableObject {
 
         isSaving = true
         errorMessage = nil
+        defer { isSaving = false }
 
         do {
             try await UserService.shared.createUser(uid: user.uid,
@@ -64,7 +65,5 @@ class CompleteProfileViewModel: ObservableObject {
             errorMessage = error.localizedDescription
             isProfileCompleted = false
         }
-
-        isSaving = false
     }
 }

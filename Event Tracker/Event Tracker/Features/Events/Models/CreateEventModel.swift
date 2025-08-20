@@ -8,70 +8,37 @@
 import Foundation
 import FirebaseFirestore
 
+// MARK: - Constants
+extension CreateEventModel {
+    enum TimeConstants {
+        static let oneDayInSeconds: TimeInterval = 86400
+        static let twentyFiveHoursInSeconds: TimeInterval = 90000
+        static let twentyThreeHoursInSeconds: TimeInterval = 82800
+    }
+}
+
 struct CreateEventModel: Identifiable, Codable, Hashable {
     @DocumentID var id: String?
-    var title: String
-    var description: String
-    var categories: [String]
-    var whatToExpected: String
-    var startDate: Date
-    var endDate: Date
-    var registrationDeadline: Date
-    var location: EventLocation
-    var participants: EventParticipants
-    var ageRestriction: AgeRestriction
-    var language: String
-    var requirements: String
-    var organizer: EventOrganizer
-    var pricing: EventPricing
-    var socialLinks: String
-    var contactInfo: String
-    var images: [EventImage]
-    var createdAt: Date
-    var updatedAt: Date
-    var createdBy: String
-    
-    init(
-        title: String = "",
-        description: String = "",
-        categories: [String] = [],
-        whatToExpected: String = "",
-        startDate: Date = Date(),
-        endDate: Date = Date().addingTimeInterval(3600),
-        registrationDeadline: Date = Date().addingTimeInterval(-86400),
-        location: EventLocation = EventLocation(),
-        participants: EventParticipants = EventParticipants(),
-        ageRestriction: AgeRestriction = AgeRestriction(),
-        language: String = "tr",
-        requirements: String = "",
-        organizer: EventOrganizer = EventOrganizer(),
-        pricing: EventPricing = EventPricing(),
-        socialLinks: String = "",
-        contactInfo: String = "",
-        images: [EventImage] = [],
-        createdBy: String = ""
-    ) {
-        self.title = title
-        self.description = description
-        self.categories = categories
-        self.whatToExpected = whatToExpected
-        self.startDate = startDate
-        self.endDate = endDate
-        self.registrationDeadline = registrationDeadline
-        self.location = location
-        self.participants = participants
-        self.ageRestriction = ageRestriction
-        self.language = language
-        self.requirements = requirements
-        self.organizer = organizer
-        self.pricing = pricing
-        self.socialLinks = socialLinks
-        self.contactInfo = contactInfo
-        self.images = images
-        self.createdAt = Date()
-        self.updatedAt = Date()
-        self.createdBy = createdBy
-    }
+    var title: String = ""
+    var description: String = ""
+    var categories: [String] = []
+    var whatToExpected: String = ""
+    var startDate: Date = Date().addingTimeInterval(TimeConstants.oneDayInSeconds)
+    var endDate: Date = Date().addingTimeInterval(TimeConstants.twentyFiveHoursInSeconds)
+    var registrationDeadline: Date = Date().addingTimeInterval(TimeConstants.twentyThreeHoursInSeconds)
+    var location: EventLocation = EventLocation()
+    var participants: EventParticipants = EventParticipants()
+    var ageRestriction: AgeRestriction = AgeRestriction()
+    var language: String = StringConstants.UI.defaultLanguage
+    var requirements: String = ""
+    var organizer: EventOrganizer = EventOrganizer()
+    var pricing: EventPricing = EventPricing()
+    var socialLinks: String = ""
+    var contactInfo: String = ""
+    var images: [EventImage] = []
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
+    var createdBy: String = ""
 }
 
 struct EventLocation: Codable, Hashable {
@@ -143,13 +110,13 @@ struct AgeRestriction: Codable, Hashable {
     var ageRangeText: String {
         switch (minAge, maxAge) {
         case (let min?, let max?):
-            return "\(min)-\(max) yaş"
+            return "\(min)-\(max) \(StringConstants.UI.ageRange)"
         case (let min?, nil):
-            return "\(min)+ yaş"
+            return "\(min)+ \(StringConstants.UI.agePlus)"
         case (nil, let max?):
-            return "\(max) yaş altı"
+            return "\(max) \(StringConstants.UI.ageUnder)"
         case (nil, nil):
-            return "Yaş sınırı yok"
+            return StringConstants.UI.noAgeRestriction
         }
     }
 }
@@ -177,7 +144,7 @@ struct EventPricing: Codable, Hashable {
     var price: Double
     var currency: String
     
-    init(price: Double = 0.0, currency: String = "TL") {
+    init(price: Double = 0.0, currency: String = StringConstants.UI.defaultCurrency) {
         self.price = price
         self.currency = currency
     }
@@ -188,7 +155,7 @@ struct EventPricing: Codable, Hashable {
     
     var formattedPrice: String {
         if isFree {
-            return "Ücretsiz"
+            return StringConstants.UI.free
         } else {
             return String(format: "%.2f %@", price, currency)
         }

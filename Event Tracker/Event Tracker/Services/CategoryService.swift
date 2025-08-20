@@ -7,11 +7,11 @@ final class CategoryService {
     private init() {}
 
     private var categoriesCollection: CollectionReference {
-        firestore.collection("categories")
+        firestore.collection(FirestoreCollections.categories)
     }
 
     private var groupsCollection: CollectionReference {
-        firestore.collection("groups")
+        firestore.collection(FirestoreCollections.groups)
     }
 
     func fetchCategories() async throws -> [CategoryModel] {

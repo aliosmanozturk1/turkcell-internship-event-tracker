@@ -5,6 +5,8 @@
 //  Created by Ali Osman Öztürk on 15.07.2025.
 //
 
+/// Docs URL: https://firebase.google.com/docs/auth/ios/apple#sign_in_with_apple_and_authenticate_with_firebase
+
 import CryptoKit
 import Foundation
 import Security

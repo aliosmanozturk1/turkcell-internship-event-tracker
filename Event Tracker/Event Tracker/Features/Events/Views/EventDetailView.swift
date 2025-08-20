@@ -127,10 +127,7 @@ struct EventDetailView: View {
                             }
                         }
                     }
-                    //.frame(minWidth: 100)
                 }
-                // .buttonStyle(.borderedProminent)
-                // .tint(viewModel.isJoined ? .red : .blue)
                 .disabled(viewModel.isUpdatingJoin || viewModel.event.participants.isFull && !viewModel.isJoined)
             }
         }
@@ -541,17 +538,13 @@ struct EventDetailView: View {
                        isValidCoordinate(latitude: lat, longitude: lon)
                     {
                         let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
-                        let region = MKCoordinateRegion(
-                            center: coordinate,
-                            latitudinalMeters: 1000,
-                            longitudinalMeters: 1000
-                        )
                         
-                        Map(coordinateRegion: .constant(region),
-                            annotationItems: [MapAnnotation(coordinate: coordinate)])
-                        { annotation in
-                            MapPin(coordinate: annotation.coordinate, tint: .red)
+                        Map {
+                            Marker("", coordinate: coordinate)
+                                .tint(.red)
                         }
+                        .mapStyle(.standard)
+                        .mapControlVisibility(.hidden)
                         .frame(height: 120)
                         .cornerRadius(12)
                         .disabled(true)
@@ -641,7 +634,7 @@ private struct MapAnnotation: Identifiable {
         whatToExpected: "SwiftUI temel bilgiler, Navigation, State Management, API entegrasyonu konularını öğreneceksiniz.",
         startDate: Date(),
         endDate: Date().addingTimeInterval(7200),
-        registrationDeadline: Date().addingTimeInterval(-86400),
+        registrationDeadline: Date().addingTimeInterval(-CreateEventModel.TimeConstants.oneDayInSeconds),
         location: EventLocation(
             name: "ITU Teknokent",
             address1: "İTÜ Ayazağa Kampüsü",

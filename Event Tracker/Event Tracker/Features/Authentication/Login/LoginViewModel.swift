@@ -11,7 +11,7 @@ import FirebaseAuth
 import AuthenticationServices
 
 @MainActor
-class LoginViewModel: ObservableObject {
+final class LoginViewModel: ObservableObject {
     // Input
     @Published var email: String = ""
     @Published var password: String = ""
@@ -26,36 +26,32 @@ class LoginViewModel: ObservableObject {
     func login() async {
         // Input validation
         guard !email.isEmpty else {
-            errorMessage = "Email cannot be empty."
+            errorMessage = StringConstants.ErrorMessages.emailCannotBeEmpty
             return
         }
         
         guard !password.isEmpty else {
-            errorMessage = "Password cannot be empty."
+            errorMessage = StringConstants.ErrorMessages.passwordCannotBeEmpty
             return
         }
             
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
             
         do {
             _ = try await AuthService.shared.signIn(email: email, password: password)
             isLogin = true
         } catch {
             isLogin = false
-            if let error = error as? AuthService.AuthError {
-                errorMessage = error.localizedDescription
-            } else {
-                errorMessage = error.localizedDescription
-            }
+            errorMessage = error.localizedDescription
         }
-            
-        isLoading = false
     }
     
     func loginWithGoogle() async {
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
         
         do {
             let user = try await AuthService.shared.signInWithGoogle()
@@ -64,14 +60,8 @@ class LoginViewModel: ObservableObject {
             isLogin = true
         } catch {
             isLogin = false
-            if let error = error as? AuthService.AuthError {
-                errorMessage = error.localizedDescription
-            } else {
-                errorMessage = error.localizedDescription
-            }
+            errorMessage = error.localizedDescription
         }
-        
-        isLoading = false
     }
     
     func loginWithApple(request: ASAuthorizationAppleIDRequest) {
@@ -86,6 +76,7 @@ class LoginViewModel: ObservableObject {
     func handleAppleSignInResult(_ result: Result<ASAuthorization, Error>) async {
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
         
         switch result {
         case .success(let authorization):
@@ -94,8 +85,7 @@ class LoginViewModel: ObservableObject {
                   let idTokenString = String(data: idToken, encoding: .utf8),
                   let nonce = currentNonce else {
                 isLogin = false
-                errorMessage = "Apple Sign-In failed"
-                isLoading = false
+                errorMessage = StringConstants.ErrorMessages.appleSignInFailed
                 return
             }
             
@@ -106,19 +96,13 @@ class LoginViewModel: ObservableObject {
                 currentNonce = nil
             } catch {
                 isLogin = false
-                if let error = error as? AuthService.AuthError {
-                    errorMessage = error.localizedDescription
-                } else {
-                    errorMessage = error.localizedDescription
-                }
+                errorMessage = error.localizedDescription
             }
             
         case .failure(let error):
             isLogin = false
             errorMessage = error.localizedDescription
         }
-        
-        isLoading = false
     }
         
     func clear() {

@@ -9,7 +9,7 @@ import Combine
 import Foundation
 
 @MainActor
-class RegisterViewModel: ObservableObject {
+final class RegisterViewModel: ObservableObject {
     // Input
     @Published var email: String = ""
     @Published var password: String = ""
@@ -23,41 +23,36 @@ class RegisterViewModel: ObservableObject {
     func register() async {
         // Input validation
         guard !email.isEmpty else {
-            errorMessage = "Email cannot be empty."
+            errorMessage = StringConstants.ErrorMessages.emailCannotBeEmpty
             return
         }
         
         guard !password.isEmpty else {
-            errorMessage = "Password cannot be empty."
+            errorMessage = StringConstants.ErrorMessages.passwordCannotBeEmpty
             return
         }
         
         guard !confirmPassword.isEmpty else {
-            errorMessage = "Password cannot be empty."
+            errorMessage = StringConstants.ErrorMessages.passwordCannotBeEmpty
             return
         }
         
         guard password == confirmPassword else {
-            errorMessage = "Passwords do not match."
+            errorMessage = StringConstants.ErrorMessages.passwordsDoNotMatch
             return
         }
             
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
             
         do {
             _ = try await AuthService.shared.signUp(email: email, password: password)
             isRegistered = true
         } catch {
             isRegistered = false
-            if let error = error as? AuthService.AuthError {
-                errorMessage = error.localizedDescription
-            } else {
-                errorMessage = error.localizedDescription
-            }
+            errorMessage = error.localizedDescription
         }
-            
-        isLoading = false
     }
         
     func clear() {

@@ -109,41 +109,6 @@ struct PriceFilterView: View {
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            
-//                            // Free events toggle
-//                            Button(action: {
-//                                if tempMinPrice == 0 && tempMaxPrice == 0 {
-//                                    // Clear free filter
-//                                    tempMinPrice = nil
-//                                    tempMaxPrice = nil
-//                                    minPriceText = ""
-//                                    maxPriceText = ""
-//                                } else {
-//                                    // Set to free events only
-//                                    tempMinPrice = 0
-//                                    tempMaxPrice = 0
-//                                    minPriceText = "0"
-//                                    maxPriceText = "0"
-//                                }
-//                                selectedPreset = nil
-//                            }) {
-//                                HStack {
-//                                    Image(systemName: tempMinPrice == 0 && tempMaxPrice == 0 ? "checkmark.square.fill" : "square")
-//                                        .foregroundColor(.blue)
-//                                    
-//                                    Text("Sadece ücretsiz etkinlikler")
-//                                        .font(.subheadline)
-//                                        .foregroundColor(.primary)
-//                                    
-//                                    Spacer()
-//                                }
-//                                .padding()
-//                                .background(
-//                                    RoundedRectangle(cornerRadius: 12)
-//                                        .fill(Color(.systemGray6))
-//                                )
-//                            }
-//                            .buttonStyle(PlainButtonStyle())
                         }
                         .padding(.horizontal)
                         
@@ -279,7 +244,7 @@ struct PriceInputField: View {
                 TextField(placeholder, text: $text)
                     .keyboardType(.decimalPad)
                     .focused($isFocused)
-                    .onChange(of: text) { newValue in
+                    .onChange(of: text) { _, newValue in
                         // Sadece değeri güncelle, preset seçimini dokunma
                         if newValue.isEmpty {
                             value = nil
@@ -287,7 +252,7 @@ struct PriceInputField: View {
                             value = doubleValue
                         }
                     }
-                    .onChange(of: isFocused) { editing in
+                    .onChange(of: isFocused) { _, editing in
                         // Kullanıcı yazmaya başladığında preset seçimini temizle
                         if editing {
                             selectedPreset = nil
