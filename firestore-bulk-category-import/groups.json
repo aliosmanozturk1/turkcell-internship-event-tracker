@@ -1,0 +1,37 @@
+[
+  {
+    "id": "creativity_art",
+    "name": "Yaratıcılık & Sanat",
+    "order": 1
+  },
+  {
+    "id": "technology_business", 
+    "name": "Teknoloji & İş",
+    "order": 2
+  },
+  {
+    "id": "entertainment_social",
+    "name": "Eğlence & Sosyal", 
+    "order": 3
+  },
+  {
+    "id": "health_wellness",
+    "name": "Sağlık & Wellness",
+    "order": 4
+  },
+  {
+    "id": "education_development",
+    "name": "Eğitim & Gelişim",
+    "order": 5
+  },
+  {
+    "id": "community_life",
+    "name": "Toplum & Yaşam",
+    "order": 6
+  },
+  {
+    "id": "other",
+    "name": "Diğer",
+    "order": 7
+  }
+]
