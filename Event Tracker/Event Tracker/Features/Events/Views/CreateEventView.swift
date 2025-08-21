@@ -1,6 +1,5 @@
 import Combine
 import SwiftUI
-import CoreLocation
 
 struct CreateEventView: View {
     @Environment(\.dismiss) private var dismiss
@@ -8,7 +7,6 @@ struct CreateEventView: View {
     @StateObject private var viewModel = CreateEventViewModel()
     @State private var isLoading = false
     @State private var showLocationPicker = false
-    @State private var selectedAddress: String = ""
     
     var body: some View {
         NavigationView {
@@ -72,11 +70,11 @@ struct CreateEventView: View {
                                     .fontWeight(.semibold)
                             }
                         }
-                        .foregroundColor(isFormValid() ? .blue : .gray)
+                        .foregroundColor(viewModel.isFormValid() ? .blue : .gray)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                     }
-                    .disabled(!isFormValid() || isLoading)
+                    .disabled(!viewModel.isFormValid() || isLoading)
                 }
             }
         }
@@ -145,7 +143,7 @@ struct CreateEventView: View {
                         } else {
                             VStack(alignment: .leading) {
                                 Text("Seçilen Konum")
-                                Text(selectedAddress.isEmpty ? "\(viewModel.locationLatitude), \(viewModel.locationLongitude)" : selectedAddress)
+                                Text(viewModel.selectedAddress.isEmpty ? "\(viewModel.locationLatitude), \(viewModel.locationLongitude)" : viewModel.selectedAddress)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -162,9 +160,9 @@ struct CreateEventView: View {
                 longitude: $viewModel.locationLongitude
             )
         }
-        .onChange(of: viewModel.locationLatitude) { reverseGeocodeSelectedLocation() }
-        .onChange(of: viewModel.locationLongitude) { reverseGeocodeSelectedLocation() }
-        .onAppear { reverseGeocodeSelectedLocation() }
+        .onChange(of: viewModel.locationLatitude) { viewModel.reverseGeocodeSelectedLocation() }
+        .onChange(of: viewModel.locationLongitude) { viewModel.reverseGeocodeSelectedLocation() }
+        .onAppear { viewModel.reverseGeocodeSelectedLocation() }
     }
     
     // MARK: - Participants Section
@@ -266,41 +264,6 @@ struct CreateEventView: View {
         }
     }
     
-    private func isFormValid() -> Bool {
-        !viewModel.title.isEmpty &&
-            !viewModel.locationName.isEmpty &&
-            !viewModel.organizerName.isEmpty &&
-            !viewModel.selectedCategories.isEmpty &&
-            !viewModel.selectedImages.isEmpty &&
-            !viewModel.price.isEmpty
-    }
-}
-
-// MARK: - Reverse Geocoding
-private extension CreateEventView {
-    func reverseGeocodeSelectedLocation() {
-        guard
-            let lat = Double(viewModel.locationLatitude),
-            let lon = Double(viewModel.locationLongitude)
-        else { return }
-
-        let location = CLLocation(latitude: lat, longitude: lon)
-        CLGeocoder().reverseGeocodeLocation(location) { placemarks, _ in
-            guard let placemark = placemarks?.first else { return }
-            selectedAddress = formatAddress(from: placemark)
-        }
-    }
-
-    func formatAddress(from placemark: CLPlacemark) -> String {
-        var parts: [String] = []
-        if let name = placemark.name { parts.append(name) }
-        if let thoroughfare = placemark.thoroughfare { parts.append(thoroughfare) }
-        if let subLocality = placemark.subLocality { parts.append(subLocality) }
-        if let locality = placemark.locality { parts.append(locality) }
-        if let administrativeArea = placemark.administrativeArea { parts.append(administrativeArea) }
-        if let postalCode = placemark.postalCode { parts.append(postalCode) }
-        return parts.joined(separator: ", ")
-    }
 }
 
 // MARK: - Preview

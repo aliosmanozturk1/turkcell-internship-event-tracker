@@ -9,6 +9,7 @@ import SwiftUI
 import UIKit
 import FirebaseAuth
 import Combine
+import CoreLocation
 
 @MainActor
 final class CreateEventViewModel: ObservableObject {
@@ -47,6 +48,7 @@ final class CreateEventViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isEventCreated = false
     @Published var createdEvent: CreateEventModel?
+    @Published var selectedAddress: String = ""
 
     func createEvent() async {
         guard let user = AuthService.shared.currentUser else {
@@ -158,8 +160,45 @@ final class CreateEventViewModel: ObservableObject {
         contactInfo = ""
         selectedImages = []
         
+        selectedAddress = ""
+        
         errorMessage = nil
         isEventCreated = false
         createdEvent = nil
+    }
+    
+    func isFormValid() -> Bool {
+        !title.isEmpty &&
+            !locationName.isEmpty &&
+            !organizerName.isEmpty &&
+            !selectedCategories.isEmpty &&
+            !selectedImages.isEmpty &&
+            !price.isEmpty
+    }
+    
+    func reverseGeocodeSelectedLocation() {
+        guard
+            let lat = Double(locationLatitude),
+            let lon = Double(locationLongitude)
+        else { return }
+
+        let location = CLLocation(latitude: lat, longitude: lon)
+        CLGeocoder().reverseGeocodeLocation(location) { [weak self] placemarks, _ in
+            guard let placemark = placemarks?.first else { return }
+            DispatchQueue.main.async {
+                self?.selectedAddress = self?.formatAddress(from: placemark) ?? ""
+            }
+        }
+    }
+
+    private func formatAddress(from placemark: CLPlacemark) -> String {
+        var parts: [String] = []
+        if let name = placemark.name { parts.append(name) }
+        if let thoroughfare = placemark.thoroughfare { parts.append(thoroughfare) }
+        if let subLocality = placemark.subLocality { parts.append(subLocality) }
+        if let locality = placemark.locality { parts.append(locality) }
+        if let administrativeArea = placemark.administrativeArea { parts.append(administrativeArea) }
+        if let postalCode = placemark.postalCode { parts.append(postalCode) }
+        return parts.joined(separator: ", ")
     }
 }
