@@ -9,23 +9,15 @@ import SwiftUI
 
 struct LocationFilterView: View {
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var viewModel: LocationFilterViewModel
     @Binding var location: String?
-    
-    @State private var tempLocation: String
-    @State private var selectedPreset: LocationPreset?
     @FocusState private var isLocationFieldFocused: Bool
-    
-    private let initialLocation: String?
     
     init(location: Binding<String?>) {
         self._location = location
-        self.initialLocation = location.wrappedValue
-        self._tempLocation = State(initialValue: location.wrappedValue ?? "")
-    }
-    
-    private var hasChanges: Bool {
-        let newValue = tempLocation.isEmpty ? nil : tempLocation
-        return newValue != initialLocation
+        self._viewModel = StateObject(wrappedValue: LocationFilterViewModel(
+            location: location.wrappedValue
+        ))
     }
     
     var body: some View {
@@ -49,10 +41,7 @@ struct LocationFilterView: View {
                 ScrollView {
                     VStack(spacing: 24) {
                         // Quick location presets
-                        LocationPresetsSection(
-                            selectedPreset: $selectedPreset,
-                            tempLocation: $tempLocation
-                        )
+                        LocationPresetsSection(viewModel: viewModel)
                         
                         Divider()
                         
@@ -73,19 +62,17 @@ struct LocationFilterView: View {
                                     Image(systemName: "location")
                                         .foregroundColor(.blue)
                                     
-                                    TextField("Şehir, ilçe veya mekan adı girin...", text: $tempLocation)
+                                    TextField("Şehir, ilçe veya mekan adı girin...", text: $viewModel.tempLocation)
                                         .focused($isLocationFieldFocused)
                                         .onChange(of: isLocationFieldFocused) { _, editing in
-                                            // Kullanıcı yazmaya başladığında preset seçimini temizle
                                             if editing {
-                                                selectedPreset = nil
+                                                viewModel.clearPresetSelection()
                                             }
                                         }
                                     
-                                    if !tempLocation.isEmpty {
+                                    if !viewModel.tempLocation.isEmpty {
                                         Button(action: {
-                                            tempLocation = ""
-                                            selectedPreset = nil
+                                            viewModel.clearFilter()
                                         }) {
                                             Image(systemName: "xmark.circle.fill")
                                                 .foregroundColor(.red)
@@ -125,10 +112,9 @@ struct LocationFilterView: View {
                         .padding(.horizontal)
                         
                         // Clear button
-                        if !tempLocation.isEmpty {
+                        if !viewModel.tempLocation.isEmpty {
                             Button(action: {
-                                tempLocation = ""
-                                selectedPreset = nil
+                                viewModel.clearFilter()
                             }) {
                                 HStack(spacing: 8) {
                                     Image(systemName: "xmark.circle.fill")
@@ -163,11 +149,12 @@ struct LocationFilterView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Uygula") {
-                        location = tempLocation.isEmpty ? nil : tempLocation
+                        viewModel.applyChanges()
+                        location = viewModel.location
                         dismiss()
                     }
                     .fontWeight(.medium)
-                    .disabled(!hasChanges)
+                    .disabled(!viewModel.hasChanges)
                 }
             }
         }
@@ -175,8 +162,7 @@ struct LocationFilterView: View {
 }
 
 struct LocationPresetsSection: View {
-    @Binding var selectedPreset: LocationPreset?
-    @Binding var tempLocation: String
+    @ObservedObject var viewModel: LocationFilterViewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -188,30 +174,29 @@ struct LocationPresetsSection: View {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
                 ForEach(LocationPreset.allCases, id: \.self) { preset in
                     Button(action: {
-                        selectedPreset = preset
-                        tempLocation = preset.locationName
+                        viewModel.applyPreset(preset)
                     }) {
                         VStack(spacing: 8) {
                             Image(systemName: preset.icon)
                                 .font(.title2)
-                                .foregroundColor(selectedPreset == preset ? .white : .blue)
+                                .foregroundColor(viewModel.selectedPreset == preset ? .white : .blue)
                             
                             Text(preset.displayName)
                                 .font(.subheadline)
                                 .fontWeight(.medium)
-                                .foregroundColor(selectedPreset == preset ? .white : .primary)
+                                .foregroundColor(viewModel.selectedPreset == preset ? .white : .primary)
                                 .multilineTextAlignment(.center)
                             
                             Text(preset.description)
                                 .font(.caption)
-                                .foregroundColor(selectedPreset == preset ? .white.opacity(0.8) : .secondary)
+                                .foregroundColor(viewModel.selectedPreset == preset ? .white.opacity(0.8) : .secondary)
                                 .multilineTextAlignment(.center)
                         }
                         .padding()
                         .frame(maxWidth: .infinity, minHeight: 100)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(selectedPreset == preset ? Color.blue : Color(.systemGray6))
+                                .fill(viewModel.selectedPreset == preset ? Color.blue : Color(.systemGray6))
                         )
                     }
                     .buttonStyle(ScaleButtonStyle())
@@ -222,51 +207,6 @@ struct LocationPresetsSection: View {
     }
 }
 
-enum LocationPreset: String, CaseIterable {
-    case istanbul = "istanbul"
-    case ankara = "ankara"
-    case izmir = "izmir"
-    case bursa = "bursa"
-    case antalya = "antalya"
-    case adana = "adana"
-    
-    var displayName: String {
-        switch self {
-        case .istanbul: return "İstanbul"
-        case .ankara: return "Ankara"
-        case .izmir: return "İzmir"
-        case .bursa: return "Bursa"
-        case .antalya: return "Antalya"
-        case .adana: return "Adana"
-        }
-    }
-    
-    var description: String {
-        switch self {
-        case .istanbul: return "Türkiye'nin en büyük şehri"
-        case .ankara: return "Türkiye'nin başkenti"
-        case .izmir: return "Ege'nin incisi"
-        case .bursa: return "Yeşil Bursa"
-        case .antalya: return "Turizm başkenti"
-        case .adana: return "Çukurova'nın merkezi"
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .istanbul: return "building.2.fill"
-        case .ankara: return "star.circle.fill"
-        case .izmir: return "water.waves"
-        case .bursa: return "leaf.fill"
-        case .antalya: return "sun.max.fill"
-        case .adana: return "location.circle.fill"
-        }
-    }
-    
-    var locationName: String {
-        return displayName
-    }
-}
 
 #Preview {
     LocationFilterView(location: .constant(nil))
