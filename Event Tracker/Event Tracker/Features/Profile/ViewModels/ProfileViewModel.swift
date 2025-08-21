@@ -43,9 +43,9 @@ class ProfileViewModel: ObservableObject {
         async let joinedTask = EventService.shared.fetchJoinedEvents(for: uid)
         
         do {
-            let (c, j) = try await (createdTask, joinedTask)
-            createdEvents = c
-            joinedEvents = j
+            let (createdEventsResult, joinedEventsResult) = try await (createdTask, joinedTask)
+            createdEvents = createdEventsResult
+            joinedEvents = joinedEventsResult
         } catch {
             Logger.error("Profile load error: \(error.localizedDescription)", category: .profile)
         }
