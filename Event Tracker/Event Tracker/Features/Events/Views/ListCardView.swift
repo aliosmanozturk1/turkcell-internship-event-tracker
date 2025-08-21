@@ -9,13 +9,17 @@
 import SwiftUI
 
 struct ListCardView: View {
-    let event: CreateEventModel
+    @StateObject private var viewModel: ListCardViewModel
     @EnvironmentObject private var router: Router
+    
+    init(event: CreateEventModel) {
+        self._viewModel = StateObject(wrappedValue: ListCardViewModel(event: event))
+    }
     
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
             // Event Image - Left Side (Tam yaslı)
-            AsyncImage(url: URL(string: event.images.first?.url ?? "")) { image in
+            AsyncImage(url: URL(string: viewModel.imageUrl ?? "")) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -51,7 +55,7 @@ struct ListCardView: View {
             // Card Content - Right Side
             VStack(alignment: .leading, spacing: 8) {
                 // Title - En Üste
-                Text(event.title)
+                Text(viewModel.title)
                     .font(.caption)
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.leading)
@@ -65,7 +69,7 @@ struct ListCardView: View {
                         .foregroundColor(.secondary)
                         .font(.caption)
                     
-                    Text(formatDate(event.startDate))
+                    Text(viewModel.formattedDate)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
@@ -78,7 +82,7 @@ struct ListCardView: View {
                         .foregroundColor(.secondary)
                         .font(.caption)
                     
-                    Text(event.location.name)
+                    Text(viewModel.locationName)
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
@@ -92,7 +96,7 @@ struct ListCardView: View {
                         .foregroundColor(.secondary)
                         .font(.caption)
                     
-                    Text(event.organizer.name)
+                    Text(viewModel.organizerName)
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
@@ -103,7 +107,7 @@ struct ListCardView: View {
                 // Categories - Scrollable
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 4) {
-                        ForEach(event.categories, id: \.self) { category in
+                        ForEach(viewModel.categories, id: \.self) { category in
                             Text(category)
                                 .font(.caption2)
                                 .fontWeight(.medium)
@@ -121,17 +125,10 @@ struct ListCardView: View {
                 // Price - Ayrı Satır
                 HStack {
                     Spacer()
-                    if event.pricing.price > 0 {
-                        Text("\(Int(event.pricing.price)) \(event.pricing.currency)")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundColor(.primary)
-                    } else {
-                        Text("Ücretsiz")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundColor(.green)
-                    }
+                    Text(viewModel.priceText)
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(viewModel.priceColor)
                 }
             }
             .padding(.leading, 14)
@@ -147,16 +144,10 @@ struct ListCardView: View {
                 .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
         )
         .onTapGesture {
-            router.push(.eventDetail(event))
+            router.push(.eventDetail(viewModel.event))
         }
     }
     
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
-    }
 }
 
 // Preview
