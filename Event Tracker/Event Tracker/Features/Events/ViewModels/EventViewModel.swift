@@ -75,7 +75,7 @@ final class EventViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         do {
-            allEvents = try await EventService.shared.fetchEvents()
+            allEvents = try await EventService.shared.fetchAllEvents()
             events = allEvents
             applyFiltersAndSorting()
         } catch {
