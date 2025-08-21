@@ -74,7 +74,7 @@ struct RegisterView: View {
                         .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(viewModel.email.isEmpty ? Color.clear : (isValidEmail(viewModel.email) ? Color.green : Color.red), lineWidth: 1)
+                                .stroke(viewModel.email.isEmpty ? Color.clear : (viewModel.isValidEmail() ? Color.green : Color.red), lineWidth: 1)
                         )
                 }
                 
@@ -169,7 +169,7 @@ struct RegisterView: View {
                     .padding(.vertical, 5)
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(viewModel.isLoading || !isFormValid())
+                .disabled(viewModel.isLoading || !viewModel.isFormValid())
             }
         }
     }
@@ -230,20 +230,6 @@ struct RegisterView: View {
             .fontWeight(.medium)
             .foregroundStyle(.blue)
         }
-    }
-    
-    private func isValidEmail(_ email: String) -> Bool {
-        let emailRegex = "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
-        return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
-    }
-    
-    private func isFormValid() -> Bool {
-        return !viewModel.email.isEmpty &&
-               !viewModel.password.isEmpty &&
-               !viewModel.confirmPassword.isEmpty &&
-               isValidEmail(viewModel.email) &&
-               viewModel.password.count >= 6 &&
-               viewModel.password == viewModel.confirmPassword
     }
 }
 

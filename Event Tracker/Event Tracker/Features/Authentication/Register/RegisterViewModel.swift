@@ -62,4 +62,18 @@ final class RegisterViewModel: ObservableObject {
         errorMessage = nil
         isRegistered = false
     }
+    
+    func isValidEmail() -> Bool {
+        let emailRegex = "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
+    }
+    
+    func isFormValid() -> Bool {
+        return !email.isEmpty &&
+               !password.isEmpty &&
+               !confirmPassword.isEmpty &&
+               isValidEmail() &&
+               password.count >= 6 &&
+               password == confirmPassword
+    }
 }
