@@ -8,13 +8,17 @@
 import SwiftUI
 
 struct GridCardView: View {
-    let event: CreateEventModel
+    @StateObject private var viewModel: GridCardViewModel
     @EnvironmentObject private var router: Router
+    
+    init(event: CreateEventModel) {
+        _viewModel = StateObject(wrappedValue: GridCardViewModel(event: event))
+    }
     
     var body: some View {
         VStack(spacing: 0) {
             // Event Image - Top Section
-            AsyncImage(url: URL(string: event.images.first?.url ?? "")) { image in
+            AsyncImage(url: viewModel.imageURL) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -50,7 +54,7 @@ struct GridCardView: View {
             // Event Information - Bottom Section
             VStack(alignment: .leading, spacing: 8) {
                 // Title
-                Text(event.title)
+                Text(viewModel.title)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.leading)
@@ -63,7 +67,7 @@ struct GridCardView: View {
                         .foregroundColor(.secondary)
                         .font(.caption)
                     
-                    Text(formatDate(event.startDate))
+                    Text(viewModel.formattedDate)
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
@@ -77,7 +81,7 @@ struct GridCardView: View {
                         .foregroundColor(.secondary)
                         .font(.caption)
                     
-                    Text(event.location.name)
+                    Text(viewModel.locationName)
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
@@ -88,7 +92,7 @@ struct GridCardView: View {
                 // Categories
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 4) {
-                        ForEach(event.categories, id: \.self) { category in
+                        ForEach(viewModel.categories, id: \.self) { category in
                             Text(category)
                                 .font(.caption2)
                                 .fontWeight(.medium)
@@ -106,17 +110,10 @@ struct GridCardView: View {
                 // Price
                 HStack {
                     Spacer()
-                    if event.pricing.price > 0 {
-                        Text("\(Int(event.pricing.price)) \(event.pricing.currency)")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundColor(.primary)
-                    } else {
-                        Text("Ücretsiz")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundColor(.green)
-                    }
+                    Text(viewModel.formattedPrice)
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(viewModel.priceColor)
                 }
             }
             .padding(.horizontal, 12)
@@ -130,15 +127,8 @@ struct GridCardView: View {
                 .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
         )
         .onTapGesture {
-            router.push(.eventDetail(event))
+            router.push(.eventDetail(viewModel.event))
         }
-    }
-    
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
     }
 }
 
