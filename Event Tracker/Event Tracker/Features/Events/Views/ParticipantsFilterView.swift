@@ -9,36 +9,17 @@ import SwiftUI
 
 struct ParticipantsFilterView: View {
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var viewModel: ParticipantsFilterViewModel
     @Binding var minParticipants: Int?
     @Binding var maxParticipants: Int?
-    
-    @State private var tempMinParticipants: Int?
-    @State private var tempMaxParticipants: Int?
-    @State private var selectedPreset: ParticipantsPreset?
-    @State private var minParticipantsText: String = ""
-    @State private var maxParticipantsText: String = ""
-    
-    private let initialMinParticipants: Int?
-    private let initialMaxParticipants: Int?
     
     init(minParticipants: Binding<Int?>, maxParticipants: Binding<Int?>) {
         self._minParticipants = minParticipants
         self._maxParticipants = maxParticipants
-        self.initialMinParticipants = minParticipants.wrappedValue
-        self.initialMaxParticipants = maxParticipants.wrappedValue
-        self._tempMinParticipants = State(initialValue: minParticipants.wrappedValue)
-        self._tempMaxParticipants = State(initialValue: maxParticipants.wrappedValue)
-        self._minParticipantsText = State(initialValue: minParticipants.wrappedValue?.description ?? "")
-        self._maxParticipantsText = State(initialValue: maxParticipants.wrappedValue?.description ?? "")
-    }
-    
-    private var hasChanges: Bool {
-        tempMinParticipants != initialMinParticipants || tempMaxParticipants != initialMaxParticipants
-    }
-    
-    private var isValidRange: Bool {
-        guard let min = tempMinParticipants, let max = tempMaxParticipants else { return true }
-        return min <= max
+        self._viewModel = StateObject(wrappedValue: ParticipantsFilterViewModel(
+            minParticipants: minParticipants.wrappedValue,
+            maxParticipants: maxParticipants.wrappedValue
+        ))
     }
     
     var body: some View {
@@ -62,13 +43,7 @@ struct ParticipantsFilterView: View {
                 ScrollView {
                     VStack(spacing: 24) {
                         // Quick presets
-                        ParticipantsPresetsSection(
-                            selectedPreset: $selectedPreset,
-                            tempMinParticipants: $tempMinParticipants,
-                            tempMaxParticipants: $tempMaxParticipants,
-                            minParticipantsText: $minParticipantsText,
-                            maxParticipantsText: $maxParticipantsText
-                        )
+                        ParticipantsPresetsSection(viewModel: viewModel)
                         
                         Divider()
                         
@@ -82,23 +57,23 @@ struct ParticipantsFilterView: View {
                             // Min Participants
                             ParticipantsInputField(
                                 title: "Minimum Katılımcı Sayısı",
-                                text: $minParticipantsText,
+                                text: $viewModel.minParticipantsText,
                                 placeholder: "0",
-                                value: $tempMinParticipants,
-                                selectedPreset: $selectedPreset
+                                viewModel: viewModel,
+                                isMaxField: false
                             )
                             
                             // Max Participants
                             ParticipantsInputField(
                                 title: "Maksimum Katılımcı Sayısı",
-                                text: $maxParticipantsText,
+                                text: $viewModel.maxParticipantsText,
                                 placeholder: "Sınır yok",
-                                value: $tempMaxParticipants,
-                                selectedPreset: $selectedPreset
+                                viewModel: viewModel,
+                                isMaxField: true
                             )
                             
                             // Validation message
-                            if let min = tempMinParticipants, let max = tempMaxParticipants, min > max {
+                            if let min = viewModel.tempMinParticipants, let max = viewModel.tempMaxParticipants, min > max {
                                 HStack(spacing: 8) {
                                     Image(systemName: "exclamationmark.triangle.fill")
                                         .foregroundColor(.red)
@@ -134,13 +109,9 @@ struct ParticipantsFilterView: View {
                         .padding(.horizontal)
                         
                         // Clear all button
-                        if tempMinParticipants != nil || tempMaxParticipants != nil {
+                        if viewModel.tempMinParticipants != nil || viewModel.tempMaxParticipants != nil {
                             Button(action: {
-                                tempMinParticipants = nil
-                                tempMaxParticipants = nil
-                                minParticipantsText = ""
-                                maxParticipantsText = ""
-                                selectedPreset = nil
+                                viewModel.clearFilter()
                             }) {
                                 HStack(spacing: 8) {
                                     Image(systemName: "xmark.circle.fill")
@@ -175,12 +146,13 @@ struct ParticipantsFilterView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Uygula") {
-                        minParticipants = tempMinParticipants
-                        maxParticipants = tempMaxParticipants
+                        viewModel.applyChanges()
+                        minParticipants = viewModel.minParticipants
+                        maxParticipants = viewModel.maxParticipants
                         dismiss()
                     }
                     .fontWeight(.medium)
-                    .disabled(!hasChanges || !isValidRange)
+                    .disabled(!viewModel.hasChanges || !viewModel.isValidRange)
                 }
             }
         }
@@ -188,11 +160,7 @@ struct ParticipantsFilterView: View {
 }
 
 struct ParticipantsPresetsSection: View {
-    @Binding var selectedPreset: ParticipantsPreset?
-    @Binding var tempMinParticipants: Int?
-    @Binding var tempMaxParticipants: Int?
-    @Binding var minParticipantsText: String
-    @Binding var maxParticipantsText: String
+    @ObservedObject var viewModel: ParticipantsFilterViewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -204,34 +172,29 @@ struct ParticipantsPresetsSection: View {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
                 ForEach(ParticipantsPreset.allCases, id: \.self) { preset in
                     Button(action: {
-                        selectedPreset = preset
-                        let range = preset.participantsRange
-                        tempMinParticipants = range.min
-                        tempMaxParticipants = range.max
-                        minParticipantsText = range.min?.description ?? ""
-                        maxParticipantsText = range.max?.description ?? ""
+                        viewModel.applyPreset(preset)
                     }) {
                         VStack(spacing: 8) {
                             Image(systemName: preset.icon)
                                 .font(.title2)
-                                .foregroundColor(selectedPreset == preset ? .white : .blue)
+                                .foregroundColor(viewModel.selectedPreset == preset ? .white : .blue)
                             
                             Text(preset.displayName)
                                 .font(.subheadline)
                                 .fontWeight(.medium)
-                                .foregroundColor(selectedPreset == preset ? .white : .primary)
+                                .foregroundColor(viewModel.selectedPreset == preset ? .white : .primary)
                                 .multilineTextAlignment(.center)
                             
                             Text(preset.description)
                                 .font(.caption)
-                                .foregroundColor(selectedPreset == preset ? .white.opacity(0.8) : .secondary)
+                                .foregroundColor(viewModel.selectedPreset == preset ? .white.opacity(0.8) : .secondary)
                                 .multilineTextAlignment(.center)
                         }
                         .padding()
                         .frame(maxWidth: .infinity, minHeight: 100)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(selectedPreset == preset ? Color.blue : Color(.systemGray6))
+                                .fill(viewModel.selectedPreset == preset ? Color.blue : Color(.systemGray6))
                         )
                     }
                     .buttonStyle(ScaleButtonStyle())
@@ -246,8 +209,8 @@ struct ParticipantsInputField: View {
     let title: String
     @Binding var text: String
     let placeholder: String
-    @Binding var value: Int?
-    @Binding var selectedPreset: ParticipantsPreset?
+    @ObservedObject var viewModel: ParticipantsFilterViewModel
+    let isMaxField: Bool
     
     @FocusState private var isFocused: Bool
     
@@ -266,28 +229,32 @@ struct ParticipantsInputField: View {
                     .keyboardType(.numberPad)
                     .focused($isFocused)
                     .onChange(of: text) { _, newValue in
-                        // Sadece değeri güncelle, preset seçimini dokunma
-                        if newValue.isEmpty {
-                            value = nil
-                        } else if let intValue = Int(newValue), intValue >= 0 {
-                            value = intValue
+                        let filteredValue = String(newValue.filter { $0.isNumber })
+                        if text != filteredValue {
+                            text = filteredValue
+                        }
+                        
+                        if isMaxField {
+                            viewModel.updateMaxParticipants(from: filteredValue)
                         } else {
-                            // Remove invalid characters
-                            text = String(newValue.filter { $0.isNumber })
+                            viewModel.updateMinParticipants(from: filteredValue)
                         }
                     }
                     .onChange(of: isFocused) { _, editing in
-                        // Kullanıcı yazmaya başladığında preset seçimini temizle
                         if editing {
-                            selectedPreset = nil
+                            viewModel.clearPresetSelection()
                         }
                     }
                 
                 if !text.isEmpty {
                     Button(action: {
                         text = ""
-                        value = nil
-                        selectedPreset = nil
+                        if isMaxField {
+                            viewModel.tempMaxParticipants = nil
+                        } else {
+                            viewModel.tempMinParticipants = nil
+                        }
+                        viewModel.clearPresetSelection()
                     }) {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.red)
@@ -304,58 +271,6 @@ struct ParticipantsInputField: View {
     }
 }
 
-enum ParticipantsPreset: String, CaseIterable {
-    case small = "small"
-    case medium = "medium"
-    case large = "large"
-    case huge = "huge"
-    case popular = "popular"
-    case exclusive = "exclusive"
-    
-    var displayName: String {
-        switch self {
-        case .small: return "Küçük Grup"
-        case .medium: return "Orta Grup"
-        case .large: return "Büyük Grup"
-        case .huge: return "Çok Büyük"
-        case .popular: return "Popüler"
-        case .exclusive: return "Seçkin"
-        }
-    }
-    
-    var description: String {
-        switch self {
-        case .small: return "1-20 kişi"
-        case .medium: return "21-50 kişi"
-        case .large: return "51-100 kişi"
-        case .huge: return "100+ kişi"
-        case .popular: return "50+ katılımcı"
-        case .exclusive: return "Maksimum 10 kişi"
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .small: return "person.2"
-        case .medium: return "person.3"
-        case .large: return "person.3.sequence"
-        case .huge: return "person.3.sequence.fill"
-        case .popular: return "heart.fill"
-        case .exclusive: return "star.fill"
-        }
-    }
-    
-    var participantsRange: (min: Int?, max: Int?) {
-        switch self {
-        case .small: return (1, 20)
-        case .medium: return (21, 50)
-        case .large: return (51, 100)
-        case .huge: return (100, nil)
-        case .popular: return (50, nil)
-        case .exclusive: return (nil, 10)
-        }
-    }
-}
 
 #Preview {
     ParticipantsFilterView(minParticipants: .constant(nil), maxParticipants: .constant(nil))
