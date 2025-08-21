@@ -10,7 +10,7 @@ import SwiftUI
 struct CategoryFilterView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedCategories: Set<String>
-    @StateObject private var viewModel = CategoryViewModel()
+    @StateObject private var viewModel = CategoryFilterViewModel()
     
     let initialSelectedCategories: Set<String>
     

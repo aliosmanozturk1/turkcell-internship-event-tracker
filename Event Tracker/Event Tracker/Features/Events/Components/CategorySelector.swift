@@ -10,7 +10,7 @@ import SwiftUI
 struct CategorySelector: View {
     @Binding var selectedCategories: Set<String>
     @State private var showingCategorySheet = false
-    @StateObject private var viewModel = CategoryViewModel()
+    @StateObject private var viewModel = CategoryFilterViewModel()
     
     var selectedCategoryObjects: [(key: String, name: String, icon: String, color: Color)] {
         selectedCategories.compactMap { selected in
