@@ -11,34 +11,12 @@ struct PriceFilterView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var minPrice: Double?
     @Binding var maxPrice: Double?
-    
-    @State private var tempMinPrice: Double?
-    @State private var tempMaxPrice: Double?
-    @State private var selectedPreset: PricePreset?
-    @State private var minPriceText: String = ""
-    @State private var maxPriceText: String = ""
-    
-    private let initialMinPrice: Double?
-    private let initialMaxPrice: Double?
+    @StateObject private var viewModel: PriceFilterViewModel
     
     init(minPrice: Binding<Double?>, maxPrice: Binding<Double?>) {
         self._minPrice = minPrice
         self._maxPrice = maxPrice
-        self.initialMinPrice = minPrice.wrappedValue
-        self.initialMaxPrice = maxPrice.wrappedValue
-        self._tempMinPrice = State(initialValue: minPrice.wrappedValue)
-        self._tempMaxPrice = State(initialValue: maxPrice.wrappedValue)
-        self._minPriceText = State(initialValue: minPrice.wrappedValue?.formatted() ?? "")
-        self._maxPriceText = State(initialValue: maxPrice.wrappedValue?.formatted() ?? "")
-    }
-    
-    private var hasChanges: Bool {
-        tempMinPrice != initialMinPrice || tempMaxPrice != initialMaxPrice
-    }
-    
-    private var isValidRange: Bool {
-        guard let min = tempMinPrice, let max = tempMaxPrice else { return true }
-        return min <= max
+        self._viewModel = StateObject(wrappedValue: PriceFilterViewModel(minPrice: minPrice.wrappedValue, maxPrice: maxPrice.wrappedValue))
     }
     
     var body: some View {
@@ -62,13 +40,7 @@ struct PriceFilterView: View {
                 ScrollView {
                     VStack(spacing: 24) {
                         // Quick presets
-                        PricePresetsSection(
-                            selectedPreset: $selectedPreset,
-                            tempMinPrice: $tempMinPrice,
-                            tempMaxPrice: $tempMaxPrice,
-                            minPriceText: $minPriceText,
-                            maxPriceText: $maxPriceText
-                        )
+                        PricePresetsSection(viewModel: viewModel)
                         
                         Divider()
                         
@@ -82,23 +54,23 @@ struct PriceFilterView: View {
                             // Min Price
                             PriceInputField(
                                 title: "Minimum Fiyat",
-                                text: $minPriceText,
+                                text: $viewModel.minPriceText,
                                 placeholder: "₺0",
-                                value: $tempMinPrice,
-                                selectedPreset: $selectedPreset
+                                isMinPrice: true,
+                                viewModel: viewModel
                             )
                             
                             // Max Price
                             PriceInputField(
                                 title: "Maksimum Fiyat",
-                                text: $maxPriceText,
+                                text: $viewModel.maxPriceText,
                                 placeholder: "Sınır yok",
-                                value: $tempMaxPrice,
-                                selectedPreset: $selectedPreset
+                                isMinPrice: false,
+                                viewModel: viewModel
                             )
                             
                             // Validation message
-                            if let min = tempMinPrice, let max = tempMaxPrice, min > max {
+                            if let min = viewModel.tempMinPrice, let max = viewModel.tempMaxPrice, min > max {
                                 HStack(spacing: 8) {
                                     Image(systemName: "exclamationmark.triangle.fill")
                                         .foregroundColor(.red)
@@ -113,13 +85,9 @@ struct PriceFilterView: View {
                         .padding(.horizontal)
                         
                         // Clear all button
-                        if tempMinPrice != nil || tempMaxPrice != nil {
+                        if viewModel.tempMinPrice != nil || viewModel.tempMaxPrice != nil {
                             Button(action: {
-                                tempMinPrice = nil
-                                tempMaxPrice = nil
-                                minPriceText = ""
-                                maxPriceText = ""
-                                selectedPreset = nil
+                                viewModel.clearPriceFilter()
                             }) {
                                 HStack(spacing: 8) {
                                     Image(systemName: "xmark.circle.fill")
@@ -154,12 +122,12 @@ struct PriceFilterView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Uygula") {
-                        minPrice = tempMinPrice
-                        maxPrice = tempMaxPrice
+                        minPrice = viewModel.tempMinPrice
+                        maxPrice = viewModel.tempMaxPrice
                         dismiss()
                     }
                     .fontWeight(.medium)
-                    .disabled(!hasChanges || !isValidRange)
+                    .disabled(!viewModel.hasChanges || !viewModel.isValidRange)
                 }
             }
         }
@@ -167,11 +135,7 @@ struct PriceFilterView: View {
 }
 
 struct PricePresetsSection: View {
-    @Binding var selectedPreset: PricePreset?
-    @Binding var tempMinPrice: Double?
-    @Binding var tempMaxPrice: Double?
-    @Binding var minPriceText: String
-    @Binding var maxPriceText: String
+    @ObservedObject var viewModel: PriceFilterViewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -183,34 +147,29 @@ struct PricePresetsSection: View {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
                 ForEach(PricePreset.allCases, id: \.self) { preset in
                     Button(action: {
-                        selectedPreset = preset
-                        let range = preset.priceRange
-                        tempMinPrice = range.min
-                        tempMaxPrice = range.max
-                        minPriceText = range.min?.formatted() ?? ""
-                        maxPriceText = range.max?.formatted() ?? ""
+                        viewModel.selectPreset(preset)
                     }) {
                         VStack(spacing: 8) {
                             Image(systemName: preset.icon)
                                 .font(.title2)
-                                .foregroundColor(selectedPreset == preset ? .white : .blue)
+                                .foregroundColor(viewModel.selectedPreset == preset ? .white : .blue)
                             
                             Text(preset.displayName)
                                 .font(.subheadline)
                                 .fontWeight(.medium)
-                                .foregroundColor(selectedPreset == preset ? .white : .primary)
+                                .foregroundColor(viewModel.selectedPreset == preset ? .white : .primary)
                                 .multilineTextAlignment(.center)
                             
                             Text(preset.description)
                                 .font(.caption)
-                                .foregroundColor(selectedPreset == preset ? .white.opacity(0.8) : .secondary)
+                                .foregroundColor(viewModel.selectedPreset == preset ? .white.opacity(0.8) : .secondary)
                                 .multilineTextAlignment(.center)
                         }
                         .padding()
                         .frame(maxWidth: .infinity, minHeight: 100)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(selectedPreset == preset ? Color.blue : Color(.systemGray6))
+                                .fill(viewModel.selectedPreset == preset ? Color.blue : Color(.systemGray6))
                         )
                     }
                     .buttonStyle(ScaleButtonStyle())
@@ -225,8 +184,8 @@ struct PriceInputField: View {
     let title: String
     @Binding var text: String
     let placeholder: String
-    @Binding var value: Double?
-    @Binding var selectedPreset: PricePreset?
+    let isMinPrice: Bool
+    @ObservedObject var viewModel: PriceFilterViewModel
     
     @FocusState private var isFocused: Bool
     
@@ -245,25 +204,29 @@ struct PriceInputField: View {
                     .keyboardType(.decimalPad)
                     .focused($isFocused)
                     .onChange(of: text) { _, newValue in
-                        // Sadece değeri güncelle, preset seçimini dokunma
-                        if newValue.isEmpty {
-                            value = nil
-                        } else if let doubleValue = Double(newValue), doubleValue >= 0 {
-                            value = doubleValue
+                        if isMinPrice {
+                            viewModel.updateMinPrice(from: newValue)
+                        } else {
+                            viewModel.updateMaxPrice(from: newValue)
                         }
                     }
                     .onChange(of: isFocused) { _, editing in
-                        // Kullanıcı yazmaya başladığında preset seçimini temizle
                         if editing {
-                            selectedPreset = nil
+                            if isMinPrice {
+                                viewModel.onMinPriceFocused()
+                            } else {
+                                viewModel.onMaxPriceFocused()
+                            }
                         }
                     }
                 
                 if !text.isEmpty {
                     Button(action: {
-                        text = ""
-                        value = nil
-                        selectedPreset = nil
+                        if isMinPrice {
+                            viewModel.clearMinPrice()
+                        } else {
+                            viewModel.clearMaxPrice()
+                        }
                     }) {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.red)
