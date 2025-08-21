@@ -9,16 +9,12 @@ import FirebaseAuth
 import SwiftUI
 
 struct ProfileView: View {
-    let userEmail: String
-    @EnvironmentObject var sessionManager: SessionManager
+    @StateObject private var viewModel: ProfileViewModel
     @EnvironmentObject var router: Router
 
-    @State private var isLoading = false
-    @State private var createdEvents: [CreateEventModel] = []
-    @State private var joinedEvents: [CreateEventModel] = []
-    @State private var showEditProfile = false
-    @State private var showCreatedAll = false
-    @State private var showJoinedAll = false
+    init(userEmail: String, sessionManager: SessionManager) {
+        self._viewModel = StateObject(wrappedValue: ProfileViewModel(sessionManager: sessionManager))
+    }
 
     var body: some View {
         NavigationView {
@@ -45,15 +41,15 @@ struct ProfileView: View {
             }
             .navigationTitle("Profilim")
             .navigationBarTitleDisplayMode(.inline)
-            .task { await loadData() }
-            .sheet(isPresented: $showEditProfile) {
+            .task { await viewModel.loadData() }
+            .sheet(isPresented: $viewModel.showEditProfile) {
                 CompleteProfileView()
             }
-            .sheet(isPresented: $showCreatedAll) {
-                MyEventsListView(title: "Oluşturduğum Etkinlikler", events: createdEvents)
+            .sheet(isPresented: $viewModel.showCreatedAll) {
+                MyEventsListView(title: "Oluşturduğum Etkinlikler", events: viewModel.createdEvents)
             }
-            .sheet(isPresented: $showJoinedAll) {
-                MyEventsListView(title: "Katıldığım Etkinlikler", events: joinedEvents)
+            .sheet(isPresented: $viewModel.showJoinedAll) {
+                MyEventsListView(title: "Katıldığım Etkinlikler", events: viewModel.joinedEvents)
             }
         }
     }
@@ -64,10 +60,10 @@ struct ProfileView: View {
                 avatarView
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(displayName)
+                    Text(viewModel.displayName)
                         .font(.title2)
                         .fontWeight(.bold)
-                    Text(sessionManager.user?.email ?? userEmail)
+                    Text(viewModel.userEmail)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -75,7 +71,7 @@ struct ProfileView: View {
                 Spacer()
 
                 Button {
-                    showEditProfile = true
+                    viewModel.showEditProfileSheet()
                 } label: {
                     Image(systemName: "gearshape.fill")
                         .foregroundColor(.blue)
@@ -95,15 +91,15 @@ struct ProfileView: View {
 
     private var createdSection: some View {
         FormSectionCard(title: "Oluşturduğum Etkinlikler", icon: "calendar.badge.plus") {
-            sectionHeader(action: { showCreatedAll = true }, count: createdEvents.count)
+            sectionHeader(action: { viewModel.showCreatedEventsSheet() }, count: viewModel.createdEvents.count)
 
-            if isLoading {
+            if viewModel.isLoading {
                 ProgressView().frame(maxWidth: .infinity)
-            } else if createdEvents.isEmpty {
+            } else if viewModel.createdEvents.isEmpty {
                 emptyRow(text: "Henüz etkinlik oluşturmamışsınız.")
             } else {
                 LazyVStack(spacing: 12) {
-                    ForEach(Array(createdEvents.prefix(3))) { event in
+                    ForEach(Array(viewModel.createdEvents.prefix(3))) { event in
                         CompactCardView(event: event)
                     }
                 }
@@ -113,15 +109,15 @@ struct ProfileView: View {
 
     private var joinedSection: some View {
         FormSectionCard(title: "Katıldığım Etkinlikler", icon: "person.3") {
-            sectionHeader(action: { showJoinedAll = true }, count: joinedEvents.count)
+            sectionHeader(action: { viewModel.showJoinedEventsSheet() }, count: viewModel.joinedEvents.count)
 
-            if isLoading {
+            if viewModel.isLoading {
                 ProgressView().frame(maxWidth: .infinity)
-            } else if joinedEvents.isEmpty {
+            } else if viewModel.joinedEvents.isEmpty {
                 emptyRow(text: "Henüz bir etkinliğe katılmadınız.")
             } else {
                 LazyVStack(spacing: 12) {
-                    ForEach(Array(joinedEvents.prefix(3))) { event in
+                    ForEach(Array(viewModel.joinedEvents.prefix(3))) { event in
                         CompactCardView(event: event)
                     }
                 }
@@ -131,7 +127,7 @@ struct ProfileView: View {
 
     private var signOutSection: some View {
         Button {
-            sessionManager.signOut()
+            viewModel.signOut()
         } label: {
             HStack {
                 Text("Çıkış Yap")
@@ -182,42 +178,13 @@ struct ProfileView: View {
             Circle()
                 .fill(Color.blue.opacity(0.1))
                 .frame(width: 64, height: 64)
-            Text(initials)
+            Text(viewModel.initials)
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.blue)
         }
     }
 
-    private var displayName: String {
-        let first = sessionManager.userProfile?.firstName ?? ""
-        let last = sessionManager.userProfile?.lastName ?? ""
-        let name = [first, last].filter { !$0.isEmpty }.joined(separator: " ")
-        return name.isEmpty ? "Kullanıcı" : name
-    }
-
-    private var initials: String {
-        let first = sessionManager.userProfile?.firstName?.first.map { String($0) } ?? ""
-        let last = sessionManager.userProfile?.lastName?.first.map { String($0) } ?? ""
-        let combined = (first + last)
-        return combined.isEmpty ? "👤" : combined.uppercased()
-    }
-
-    private func loadData() async {
-        guard let uid = sessionManager.user?.uid else { return }
-        isLoading = true
-        async let createdTask = EventService.shared.fetchEventsCreatedBy(userId: uid)
-        async let joinedTask = EventService.shared.fetchJoinedEvents(for: uid)
-        do {
-            let (c, j) = try await (createdTask, joinedTask)
-            createdEvents = c
-            joinedEvents = j
-        } catch {
-            // For simplicity, ignore per-field errors; could add toast later
-            Logger.error("Profile load error: \(error.localizedDescription)", category: .profile)
-        }
-        isLoading = false
-    }
 }
 
 struct MyEventsListView: View {
@@ -249,7 +216,6 @@ struct MyEventsListView: View {
 }
 
 #Preview {
-    ProfileView(userEmail: "test@example.com")
-        .environmentObject(SessionManager())
+    ProfileView(userEmail: "test@example.com", sessionManager: SessionManager())
         .environmentObject(Router())
 }
