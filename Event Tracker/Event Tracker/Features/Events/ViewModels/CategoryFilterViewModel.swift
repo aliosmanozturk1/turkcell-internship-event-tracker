@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 @MainActor
-final class CategoryViewModel: ObservableObject {
+final class CategoryFilterViewModel: ObservableObject {
     @Published var categories: [CategoryModel] = []
     @Published var groups: [GroupModel] = []
 
