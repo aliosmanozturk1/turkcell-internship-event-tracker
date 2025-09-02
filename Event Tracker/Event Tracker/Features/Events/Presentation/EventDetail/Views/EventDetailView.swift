@@ -198,7 +198,7 @@ struct EventDetailView: View {
             if !viewModel.event.images.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
-                        ForEach(viewModel.event.images, id: \.id) { image in
+                        ForEach(viewModel.event.images.sorted(by: { $0.order < $1.order }), id: \.id) { image in
                             AsyncImage(url: URL(string: image.url)) { img in
                                 img
                                     .resizable()

@@ -9,8 +9,8 @@ final class ImageUploader {
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
         
-        return try await withThrowingTaskGroup(of: EventImage?.self) { group in
-            for image in images {
+        return try await withThrowingTaskGroup(of: (EventImage?, Int).self) { group in
+            for (index, image) in images.enumerated() {
                 group.addTask {
                     let id = UUID().uuidString
                     let mainRef = storageRef.child("images/\(id).jpg")
@@ -18,7 +18,7 @@ final class ImageUploader {
                     
                     guard let mainData = await image.resized(to: 1280).jpegData(compressionQuality: 0.7),
                           let thumbData = await image.resized(to: 300).jpegData(compressionQuality: 0.3) else {
-                        return nil
+                        return (nil, index)
                     }
                     
                     async let mainUpload = mainRef.putDataAsync(mainData, metadata: metadata)
@@ -33,17 +33,21 @@ final class ImageUploader {
                     let mainURLResult = try await mainURL
                     let thumbURLResult = try await thumbURL
                     
-                    return EventImage(url: mainURLResult.absoluteString, thumbnailUrl: thumbURLResult.absoluteString)
+                    let eventImage = EventImage(url: mainURLResult.absoluteString, thumbnailUrl: thumbURLResult.absoluteString, order: index)
+                    return (eventImage, index)
                 }
             }
             
-            var results: [EventImage] = []
-            for try await result in group {
-                if let eventImage = result {
-                    results.append(eventImage)
+            var results: [(EventImage, Int)] = []
+            for try await (eventImage, index) in group {
+                if let eventImage = eventImage {
+                    results.append((eventImage, index))
                 }
             }
-            return results
+            
+            // Sort by original index to maintain order
+            results.sort { $0.1 < $1.1 }
+            return results.map { $0.0 }
         }
     }
 }
