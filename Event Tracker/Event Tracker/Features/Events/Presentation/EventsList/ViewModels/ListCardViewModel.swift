@@ -19,6 +19,10 @@ class ListCardViewModel: ObservableObject {
         event.images.first?.url
     }
     
+    var thumbnailUrl: String? {
+        event.images.first?.thumbnailUrl
+    }
+    
     var title: String {
         event.title
     }

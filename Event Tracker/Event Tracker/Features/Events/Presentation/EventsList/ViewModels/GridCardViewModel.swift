@@ -16,6 +16,10 @@ final class GridCardViewModel: ObservableObject {
         URL(string: event.images.first?.url ?? "")
     }
     
+    var thumbnailURL: URL? {
+        URL(string: event.images.first?.thumbnailUrl ?? "")
+    }
+    
     var formattedDate: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .short

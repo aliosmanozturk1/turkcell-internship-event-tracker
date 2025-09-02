@@ -35,6 +35,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         }
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
         
+        // Configure URLCache for image caching
+        let memoryCapacity = 50 * 1024 * 1024 // 50 MB
+        let diskCapacity = 200 * 1024 * 1024   // 200 MB
+        let cache = URLCache(memoryCapacity: memoryCapacity, diskCapacity: diskCapacity)
+        URLCache.shared = cache
+        
         return true
     }
     

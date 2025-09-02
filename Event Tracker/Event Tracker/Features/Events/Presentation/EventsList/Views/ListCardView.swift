@@ -19,7 +19,7 @@ struct ListCardView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
             // Event Image - Left Side (Tam yaslı)
-            AsyncImage(url: URL(string: viewModel.imageUrl ?? "")) { image in
+            AsyncImage(url: URL(string: viewModel.thumbnailUrl ?? "")) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)

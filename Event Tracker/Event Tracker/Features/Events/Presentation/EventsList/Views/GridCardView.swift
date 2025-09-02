@@ -18,7 +18,7 @@ struct GridCardView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Event Image - Top Section
-            AsyncImage(url: viewModel.imageURL) { image in
+            AsyncImage(url: viewModel.thumbnailURL) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
