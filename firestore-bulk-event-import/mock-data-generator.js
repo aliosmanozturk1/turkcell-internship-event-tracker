@@ -85,12 +85,14 @@ function generateEventImages() {
     {
       id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       url: `https://picsum.photos/${width}/${height}?random=${imageId}`,
-      thumbnailUrl: `https://picsum.photos/${thumbnailWidth}/${thumbnailHeight}?random=${imageId}`
+      thumbnailUrl: `https://picsum.photos/${thumbnailWidth}/${thumbnailHeight}?random=${imageId}`,
+      order: 0
     },
     {
       id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       url: `https://picsum.photos/${width}/${height}?random=${imageId + 1}`,
-      thumbnailUrl: `https://picsum.photos/${thumbnailWidth}/${thumbnailHeight}?random=${imageId + 1}`
+      thumbnailUrl: `https://picsum.photos/${thumbnailWidth}/${thumbnailHeight}?random=${imageId + 1}`,
+      order: 1
     }
   ];
 }
