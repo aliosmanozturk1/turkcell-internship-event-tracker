@@ -1,0 +1,17 @@
+{
+  "name": "turkcell-internship-event-tracker-mock-data",
+  "version": "1.0.0",
+  "description": "Mock data generator for Event Tracker app",
+  "main": "mock-data-generator.js",
+  "scripts": {
+    "generate": "node mock-data-generator.js",
+    "upload": "node -e \"require('./mock-data-generator').uploadToFirestore()\"",
+    "delete-all-events": "node delete-all-events.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "MIT"
+}
