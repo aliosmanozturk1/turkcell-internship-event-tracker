@@ -21,39 +21,75 @@ const locations = [
   { city: 'Antalya', districts: ['Muratpaşa', 'Konyaaltı', 'Kepez', 'Aksu'] }
 ];
 
-// Turkish event titles and descriptions
+// Turkish event titles and descriptions - Çeşitli kategorilerden
 const eventTitles = [
+  // Teknoloji
   'React Native Workshop', 'iOS Geliştirme Bootcamp', 'Yapay Zeka Semineri',
-  'Girişimcilik Zirvesi', 'Dijital Pazarlama Eğitimi', 'Mobil Uygulama Geliştirme',
-  'Blockchain ve Kripto', 'UI/UX Tasarım Atölyesi', 'Swift Programlama',
-  'Flutter ile Uygulama Geliştirme', 'Veri Bilimi Workshop', 'Siber Güvenlik Eğitimi',
-  'Startup Pitch Event', 'Tech Talk: Gelecek Teknolojiler', 'Hackathon İstanbul',
-  'Kadın Girişimciler Buluşması', 'Fintech Konferansı', 'E-ticaret Stratejileri',
-  'Sosyal Medya Marketing', 'Yazılım Test Eğitimi', 'DevOps Workshop',
-  'Cloud Computing Semineri', 'API Geliştirme Workshop', 'Database Optimizasyon',
-  'Game Development Bootcamp', 'AR/VR Teknolojileri', 'Machine Learning 101',
-  'Python ile Web Development', 'JavaScript Framework Karşılaştırması', 'Agile Metodolojileri'
+  'Blockchain ve Kripto', 'UI/UX Tasarım Atölyesi', 'Siber Güvenlik Eğitimi',
+  
+  // Sanat & Kültür
+  'Yağlıboya Resim Atölyesi', 'Seramik Yapım Workshop', 'Heykel Sanatı Sergisi',
+  'Karakalem Portre Eğitimi', 'Grafik Tasarım Sergi Açılışı', 'Modern Sanat Fuarı',
+  'Fotoğrafçılık Workshop', 'El Sanatları Atölyesi', 'Kaligrafi Kursu',
+  
+  // Müzik & Konser  
+  'Caz Konseri - Nardis', 'Akustik Gitar Workshop', 'Sokak Müziği Festivali',
+  'Piano Resitali', 'Rock Konseri - Barış Manço Anısına', 'Türk Halk Müziği Gecesi',
+  'Elektronik Müzik Workshop', 'Flüt Kursu Başlangıç', 'Indie Rock Festivali',
+  
+  // Doğa & Açık Hava
+  'Belgrad Ormanı Doğa Yürüyüşü', 'Boğaziçi Sahil Bisiklet Turu', 'Karma Ormanı Kampa',
+  'Botanik Park Fotoğraf Safari', 'Adalar Tekne Turu', 'Polonezköy Piknik',
+  'Dağcılık ve Tırmanış', 'Kuş Gözlemi Etkinliği', 'Şile Sahil Yürüyüşü',
+  
+  // Spor & Fitness
+  'Yoga Sabah Dersleri', 'Pilates Workshop', 'Koşu Grubu Antrenmanı',
+  'Plaj Voleybolu Turnuvası', 'Tenis Kursu', 'Yüzme Eğitimi',
+  'Bisiklet Tamiri Workshop', 'Outdoor Fitness Bootcamp', 'Masa Tenisi Turnuvası',
+  
+  // Sosyal & Networking
+  'Girişimcilik Zirvesi', 'Kadın Girişimciler Buluşması', 'Freelancer Networking',
+  'Startup Pitch Gecesi', 'Kariyer Planlama Semineri', 'Dijital Nomad Buluşması',
+  
+  // Yemek & Gastronomi
+  'İtalyan Mutfağı Workshop', 'Kahve Demleme Sanatı', 'Vegan Yemek Atölyesi',
+  'Şarap Tadımı Gecesi', 'Sushi Yapım Kursu', 'Türk Tatlıları Atölyesi',
+  
+  // Eğitim & Kişisel Gelişim  
+  'Halkla Konuşma Kursu', 'Zaman Yönetimi Semineri', 'Liderlik Geliştirme Workshop',
+  'Dil Öğrenme Teknikleri', 'Kitap Okuma Kulübü', 'Meditasyon ve Mindfulness'
 ];
 
 const eventDescriptions = [
-  'Bu etkinlikte en güncel teknolojileri öğrenecek ve sektör uzmanlarıyla networking yapma fırsatı bulacaksınız.',
-  'Deneyimli eğitmenler eşliğinde pratik uygulamalar yaparak yeni beceriler kazanacaksınız.',
-  'Sektörün önde gelen isimlerinden ilham alıcı sunumlar dinleyecek ve değerli bağlantılar kuracaksınız.',
-  'İnteraktif workshoplar ve grup çalışmalarıyla bilgilerinizi pekiştireceksiniz.',
-  'Gerçek projeler üzerinde çalışarak deneyim kazanacak ve portföyünüzü güçlendireceksiniz.',
+  'Bu etkinlikte yeni beceriler öğrenecek ve keyifli vakit geçireceksiniz.',
+  'Deneyimli eğitmenler eşliğinde pratik uygulamalar yaparak ilerleme kaydedeceksiniz.',
+  'Alanında uzman kişilerden öğrenecek ve yeni insanlarla tanışacaksınız.',
+  'İnteraktif aktiviteler ve grup çalışmalarıyla eğlenceli bir deneyim yaşayacaksınız.',
+  'Gerçek uygulamalar üzerinde çalışarak deneyim kazanacaksınız.',
+  'Doğayla iç içe nefes alacak ve stresi atacaksınız.',
+  'Sanatın büyülü dünyasında kendinizi keşfedeceksiniz.',
+  'Müziğin evrensel dilinde buluşacak ve coşkuyu paylaşacaksınız.',
+  'Lezzetli tarifler öğrenecek ve damak tadınızı geliştireceksiniz.',
+  'Sporun verdiği enerji ile kendini yenileme fırsatı bulacaksınız.',
+  'Kendinizi geliştirirken yeni arkadaşlıklar kuracaksınız.'
 ];
 
 const organizerNames = [
-  'Tech Istanbul', 'Startup Academy', 'Digital Minds', 'Innovation Hub',
-  'Code Academy', 'Future Tech', 'Smart Solutions', 'Next Generation',
-  'Tech Leaders', 'Innovation Lab', 'Developer Community', 'Startup Network'
+  'Tech Istanbul', 'Startup Academy', 'Sanat Atölyesi', 'Doğa Severler Kulübü',
+  'Müzik Merkezi', 'Spor Kulübü', 'Yaratıcı Atölye', 'Outdoor Adventures',
+  'Kültür Sanat Derneği', 'Fit Life Community', 'Gastronomi Kulübü', 'Yeşil İstanbul',
+  'Rock Kulübü', 'Yoga Studio', 'Bisiklet Topluluğu', 'Fotoğraf Derneği',
+  'Jazz Corner', 'Lezzet Akademisi', 'Sahil Sporları', 'Halk Oyunları Derneği'
 ];
 
 const venues = [
   'İTÜ Teknokent', 'Kozyatağı Kültür Merkezi', 'Şişli Belediyesi Konferans Salonu',
   'Boğaziçi Üniversitesi', 'Bilgi Üniversitesi', 'Sabancı Üniversitesi',
-  'İstanbul Kongre Merkezi', 'Ankara Atatürk Kültür Merkezi', 'İzmir Kültürpark',
-  'Bursa Merinos Kültür Merkezi', 'Antalya Kültür Merkezi'
+  'Belgrad Ormanı', 'Emirgan Korusu', 'Boğaziçi Sahil Yolu', 'Adalar İskelesi',
+  'Caddebostan Sahili', 'Maçka Parkı', 'Gülhane Parkı', 'Yıldız Parkı',
+  'Jazz Café', 'Nardis Jazz Club', 'Babylon', 'Zorlu Center PSM',
+  'Akbank Sanat', 'Pera Müzesi', 'İstanbul Modern', 'Santral İstanbul',
+  'Fenerbahçe Parkı', 'Küçüksu Mesire Alanı', 'Atatürk Orman Çiftliği'
 ];
 
 // Function to generate random coordinates for Turkish cities
@@ -85,12 +121,14 @@ function generateEventImages() {
     {
       id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       url: `https://picsum.photos/${width}/${height}?random=${imageId}`,
-      thumbnailUrl: `https://picsum.photos/${thumbnailWidth}/${thumbnailHeight}?random=${imageId}`
+      thumbnailUrl: `https://picsum.photos/${thumbnailWidth}/${thumbnailHeight}?random=${imageId}`,
+      order: 0
     },
     {
       id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       url: `https://picsum.photos/${width}/${height}?random=${imageId + 1}`,
-      thumbnailUrl: `https://picsum.photos/${thumbnailWidth}/${thumbnailHeight}?random=${imageId + 1}`
+      thumbnailUrl: `https://picsum.photos/${thumbnailWidth}/${thumbnailHeight}?random=${imageId + 1}`,
+      order: 1
     }
   ];
 }

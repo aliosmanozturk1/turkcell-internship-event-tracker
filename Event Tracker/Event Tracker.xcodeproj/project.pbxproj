@@ -290,7 +290,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Event-Tracker-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Event Tracker";
+				INFOPLIST_KEY_CFBundleDisplayName = YepEvent;
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Etkinliği takviminize kaydetmek için bu izin gerekiyor.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Etkinlikte konum paylaşabilmeniz için gerekmektedir.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -327,7 +327,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Event-Tracker-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Event Tracker";
+				INFOPLIST_KEY_CFBundleDisplayName = YepEvent;
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Etkinliği takviminize kaydetmek için bu izin gerekiyor.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Etkinlikte konum paylaşabilmeniz için gerekmektedir.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

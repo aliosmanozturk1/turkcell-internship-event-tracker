@@ -29,7 +29,7 @@ final class EventService {
         return eventWithId
     }
 
-    func fetchEvents() async throws -> [CreateEventModel] {
+    func fetchAllEvents() async throws -> [CreateEventModel] {
         let snapshot = try await eventsCollection.getDocuments()
         return snapshot.documents.compactMap { document in
             try? document.data(as: CreateEventModel.self)

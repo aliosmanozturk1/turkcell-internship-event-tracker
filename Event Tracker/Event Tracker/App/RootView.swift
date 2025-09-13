@@ -34,7 +34,7 @@ struct RootView: View {
                                         Text("Create Event")
                                     }
 
-                                ProfileView(userEmail: sessionManager.user?.email ?? "")
+                                ProfileView(userEmail: sessionManager.user?.email ?? "", sessionManager: sessionManager)
                                     .tabItem {
                                         Image(systemName: "person.crop.circle")
                                         Text("Profile")
